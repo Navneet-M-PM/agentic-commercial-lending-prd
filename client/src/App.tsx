@@ -1,35 +1,44 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import DealDetail from "./pages/DealDetail";
+import Documents from "./pages/Documents";
+import Spreading from "./pages/Spreading";
+import CreditMemo from "./pages/CreditMemo";
+import AgentFeed from "./pages/AgentFeed";
+import ApprovalWorkflow from "./pages/ApprovalWorkflow";
+import Compliance from "./pages/Compliance";
+import Portfolio from "./pages/Portfolio";
+import Metrics from "./pages/Metrics";
+import NotFound from "./pages/NotFound";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
+      <Route path="/" component={Home} />
+      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/deals/:id" component={DealDetail} />
+      <Route path="/documents/:id?" component={Documents} />
+      <Route path="/spreading/:id?" component={Spreading} />
+      <Route path="/credit-memo/:id?" component={CreditMemo} />
+      <Route path="/agents" component={AgentFeed} />
+      <Route path="/approval/:id?" component={ApprovalWorkflow} />
+      <Route path="/compliance/:id?" component={Compliance} />
+      <Route path="/portfolio" component={Portfolio} />
+      <Route path="/metrics" component={Metrics} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
           <Router />
