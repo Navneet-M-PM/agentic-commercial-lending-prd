@@ -16,6 +16,7 @@ import Portfolio from "./pages/Portfolio";
 import Metrics from "./pages/Metrics";
 import NotFound from "./pages/NotFound";
 import ROICalculator from "./pages/ROICalculator";
+import PRD from "./pages/PRD";
 import DemoTour from "./components/DemoTour";
 
 function Router() {
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/portfolio" component={Portfolio} />
       <Route path="/metrics" component={Metrics} />
       <Route path="/roi-calculator" component={ROICalculator} />
+      <Route path="/prd" component={PRD} />
       <Route component={NotFound} />
     </Switch>
   );
