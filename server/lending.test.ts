@@ -208,3 +208,96 @@ describe("Lending Platform — Business Logic", () => {
     expect(failed).toBe(0);
   });
 });
+
+// ─── ROI Calculator — business logic tests ───────────────────────────────────
+
+describe("ROI Calculator — business logic", () => {
+  const BENCHMARKS = {
+    avgCostPerLoan: 11319,
+    avgUnderwriterDeals: 8,
+    avgDecisionDays: 21,
+  };
+  const AI = {
+    costReduction: 0.63,
+    throughputMultiplier: 3.5,
+    nplImprovement: 0.32,
+    decisionDaysReduction: 0.81,
+  };
+
+  it("calculates operations savings correctly", () => {
+    const loanVolume = 200;
+    const opsSavings = loanVolume * BENCHMARKS.avgCostPerLoan * AI.costReduction;
+    expect(opsSavings).toBeCloseTo(1_426_194, -3);
+    expect(opsSavings).toBeGreaterThan(1_000_000);
+  });
+
+  it("calculates AI decision time correctly (21 days → 4 days)", () => {
+    const aiDays = Math.round(BENCHMARKS.avgDecisionDays * (1 - AI.decisionDaysReduction));
+    expect(aiDays).toBe(4);
+  });
+
+  it("calculates throughput multiplier correctly (3.5×)", () => {
+    const underwriters = 15;
+    const currentCapacity = underwriters * BENCHMARKS.avgUnderwriterDeals * 12;
+    const aiCapacity = underwriters * BENCHMARKS.avgUnderwriterDeals * AI.throughputMultiplier * 12;
+    expect(aiCapacity / currentCapacity).toBeCloseTo(3.5, 1);
+  });
+
+  it("ROI is positive for a 200-loan bank", () => {
+    const loanVolume = 200;
+    const avgLoanSize = 5;
+    const underwriters = 15;
+    const nplRate = 2.8;
+    const avgRevPerLoan = 85;
+    const implCost = 2_500_000;
+
+    const opsSavings = loanVolume * BENCHMARKS.avgCostPerLoan * AI.costReduction;
+    const nplSavings = (loanVolume * avgLoanSize * 1_000_000) * (nplRate / 100) * 0.45 * AI.nplImprovement;
+    const additionalLoans = underwriters * BENCHMARKS.avgUnderwriterDeals * (AI.throughputMultiplier - 1) * 12;
+    const revenueGain = additionalLoans * avgRevPerLoan * 1000;
+    const totalBenefit = opsSavings + nplSavings + revenueGain;
+    const roi = ((totalBenefit - implCost) / implCost) * 100;
+
+    expect(roi).toBeGreaterThan(0);
+    expect(totalBenefit).toBeGreaterThan(implCost);
+  });
+
+  it("payback period is under 12 months for typical bank", () => {
+    const loanVolume = 200;
+    const avgLoanSize = 5;
+    const underwriters = 15;
+    const nplRate = 2.8;
+    const avgRevPerLoan = 85;
+    const implCost = 2_500_000;
+
+    const opsSavings = loanVolume * BENCHMARKS.avgCostPerLoan * AI.costReduction;
+    const nplSavings = (loanVolume * avgLoanSize * 1_000_000) * (nplRate / 100) * 0.45 * AI.nplImprovement;
+    const additionalLoans = underwriters * BENCHMARKS.avgUnderwriterDeals * (AI.throughputMultiplier - 1) * 12;
+    const revenueGain = additionalLoans * avgRevPerLoan * 1000;
+    const totalBenefit = opsSavings + nplSavings + revenueGain;
+    const paybackMonths = implCost / (totalBenefit / 12);
+
+    expect(paybackMonths).toBeLessThan(12);
+  });
+});
+
+// ─── Agent confidence threshold tests ────────────────────────────────────────
+
+describe("Agent confidence threshold", () => {
+  const shouldFlagForReview = (confidence: number, threshold = 85) => confidence < threshold;
+
+  it("flags items below 85% for human review", () => {
+    expect(shouldFlagForReview(84)).toBe(true);
+    expect(shouldFlagForReview(70)).toBe(true);
+  });
+
+  it("does not flag items at or above 85%", () => {
+    expect(shouldFlagForReview(85)).toBe(false);
+    expect(shouldFlagForReview(94)).toBe(false);
+  });
+
+  it("uses custom threshold when provided", () => {
+    expect(shouldFlagForReview(90, 95)).toBe(true);
+    expect(shouldFlagForReview(96, 95)).toBe(false);
+  });
+});

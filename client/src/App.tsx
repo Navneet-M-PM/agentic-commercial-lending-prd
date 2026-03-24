@@ -15,6 +15,8 @@ import Compliance from "./pages/Compliance";
 import Portfolio from "./pages/Portfolio";
 import Metrics from "./pages/Metrics";
 import NotFound from "./pages/NotFound";
+import ROICalculator from "./pages/ROICalculator";
+import DemoTour from "./components/DemoTour";
 
 function Router() {
   return (
@@ -30,6 +32,7 @@ function Router() {
       <Route path="/compliance/:id?" component={Compliance} />
       <Route path="/portfolio" component={Portfolio} />
       <Route path="/metrics" component={Metrics} />
+      <Route path="/roi-calculator" component={ROICalculator} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -42,6 +45,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <DemoTour />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

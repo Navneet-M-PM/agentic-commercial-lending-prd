@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, BarChart3, Brain, Activity,
   GitBranch, Shield, TrendingUp, LineChart, ChevronLeft,
   ChevronRight, Zap, Bell, Settings, LogOut, Menu, X,
-  Building2, AlertTriangle
+  Building2, AlertTriangle, Calculator
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -18,6 +18,7 @@ const navItems = [
   { href: "/compliance/DL-2024-001", icon: Shield, label: "Compliance", badge: null },
   { href: "/portfolio", icon: TrendingUp, label: "Portfolio Monitoring", badge: "2 Alerts" },
   { href: "/metrics", icon: LineChart, label: "KPI Metrics", badge: null },
+  { href: "/roi-calculator", icon: Calculator, label: "ROI Calculator", badge: "New" },
 ];
 
 interface LendingLayoutProps {

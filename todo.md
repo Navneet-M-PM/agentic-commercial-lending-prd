@@ -28,3 +28,9 @@
 - [x] Responsive design verified
 - [x] Vitest tests (13 tests passing)
 - [x] Checkpoint saved
+
+## Follow-up Features (User Requested)
+- [x] Guided demo tour — floating button with scripted 5-step journey and step tooltips
+- [x] Live LLM-powered credit memo generator — real AI generation from mock financial data
+- [x] Bank ROI calculator — personalized inputs with animated before/after results
+- [x] Additional polish — ROI Calculator sidebar link added, 21 vitest tests passing
