@@ -49,26 +49,39 @@
 - [x] Vitest tests for classification logic and upload validation (21 total passing)
 
 ## PRD Webpage — 19 Sections (User Requested)
-- [ ] PRD route /prd added to App.tsx
-- [ ] PRD link added to sidebar navigation
-- [ ] Section 01: Executive Summary
-- [ ] Section 02: Problem Identification
-- [ ] Section 03: Pain Points & Research
-- [ ] Section 04: Gap Analysis
-- [ ] Section 05: Requirements Gathering
-- [ ] Section 06: User Personas
-- [ ] Section 07: Customer Journey Map
-- [ ] Section 08: Concept Testing
-- [ ] Section 09: Prioritization Framework
-- [ ] Section 10: A/B Testing Strategy
-- [ ] Section 11: User Story Detailing
-- [ ] Section 12: Functional Requirements
-- [ ] Section 13: Non-Functional Requirements
-- [ ] Section 14: System Architecture
-- [ ] Section 15: Orchestration & Data Flow
-- [ ] Section 16: API Integrations
-- [ ] Section 17: KPIs & Success Metrics
-- [ ] Section 18: Risks & Mitigations
-- [ ] Section 19: Roadmap & Milestones
-- [ ] Sticky sidebar TOC with active section highlighting
-- [ ] Smooth scroll navigation between sections
+- [x] PRD route /prd added to App.tsx
+- [x] PRD link added to sidebar navigation
+- [x] Section 01: Executive Summary
+- [x] Section 02: Problem Identification
+- [x] Section 03: Pain Points & Research
+- [x] Section 04: Gap Analysis
+- [x] Section 05: Requirements Gathering
+- [x] Section 06: User Personas
+- [x] Section 07: Customer Journey Map
+- [x] Section 08: Concept Testing
+- [x] Section 09: Prioritization Framework
+- [x] Section 10: A/B Testing Strategy
+- [x] Section 11: User Story Detailing
+- [x] Section 12: Functional Requirements
+- [x] Section 13: Non-Functional Requirements
+- [x] Section 14: System Architecture
+- [x] Section 15: Orchestration & Data Flow
+- [x] Section 16: API Integrations
+- [x] Section 17: KPIs & Success Metrics
+- [x] Section 18: Risks & Mitigations
+- [x] Section 19: Roadmap & Milestones
+- [x] Sticky sidebar TOC with active section highlighting
+- [x] Smooth scroll navigation between sections
+
+## PRD Comprehensive Rewrite — PDF Gap Analysis (User Requested)
+- [ ] Add all 8 lifecycle stages with JTBD tables (Stage 1–8 from PDF Part II)
+- [ ] Add all 9 agent specification tables with failure modes + integrations columns (from PDF Part III)
+- [ ] Add all 3 representative journeys with step-by-step Today vs. Agentic tables (from PDF Part IV)
+- [ ] Add complete feature list by lifecycle stage (from PDF Part V)
+- [ ] Add all 4 UX principles with implementation details (from PDF Part VI)
+- [ ] Add Responsible AI & Governance section (from PDF Part VIII)
+- [ ] Add 3-tier KPI framework (Board/Management/Product) with baselines (from PDF Part IX)
+- [ ] Add competitive differentiation section + sustainable moat analysis (from PDF Part XI)
+- [ ] Add full citations appendix (10 sources from PDF Appendix)
+- [ ] Add product hypothesis with falsifiable metrics (from PDF Section 1.2)
+- [ ] Add JTBD framework table (all 5 personas × 3 job types) (from PDF Section 1.3)

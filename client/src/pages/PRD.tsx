@@ -1,52 +1,56 @@
 import { useState, useEffect, useRef } from "react";
 import LendingLayout from "@/components/LendingLayout";
 import {
-  TrendingUp, Users, BarChart2, BookOpen, Layers,
-  Server, GitBranch, Plug, Target, AlertTriangle,
-  Calendar, CheckCircle2, Zap, Brain, Shield,
-  FileText, ChevronRight, Star, Lightbulb, Award,
-  Map, FlaskConical, TestTube2, TrendingDown
+  AlertTriangle, BarChart2, BookOpen, Brain, Calendar, CheckCircle2,
+  ChevronRight, FileText, Layers, Shield, Target, TrendingDown,
+  TrendingUp, Users, Zap, Server, Globe, GitBranch, Award,
+  ArrowRight, Lightbulb, Database, Lock, Eye, RefreshCw,
+  DollarSign, Clock, Activity, Star, Cpu, Network
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
-const SECTIONS = [
-  { id: "s01", num: "01", label: "Executive Summary", icon: Star },
-  { id: "s02", num: "02", label: "Problem Identification", icon: AlertTriangle },
-  { id: "s03", num: "03", label: "Pain Points & Research", icon: TrendingDown },
-  { id: "s04", num: "04", label: "Gap Analysis", icon: BarChart2 },
-  { id: "s05", num: "05", label: "Requirements Gathering", icon: BookOpen },
-  { id: "s06", num: "06", label: "User Personas", icon: Users },
-  { id: "s07", num: "07", label: "Customer Journey Map", icon: Map },
-  { id: "s08", num: "08", label: "Concept Testing", icon: FlaskConical },
-  { id: "s09", num: "09", label: "Prioritization Framework", icon: Layers },
-  { id: "s10", num: "10", label: "A/B Testing Strategy", icon: TestTube2 },
-  { id: "s11", num: "11", label: "User Story Detailing", icon: FileText },
-  { id: "s12", num: "12", label: "Functional Requirements", icon: CheckCircle2 },
-  { id: "s13", num: "13", label: "Non-Functional Requirements", icon: Shield },
-  { id: "s14", num: "14", label: "System Architecture", icon: Server },
-  { id: "s15", num: "15", label: "Orchestration & Data Flow", icon: GitBranch },
-  { id: "s16", num: "16", label: "API Integrations", icon: Plug },
-  { id: "s17", num: "17", label: "KPIs & Success Metrics", icon: Target },
-  { id: "s18", num: "18", label: "Risks & Mitigations", icon: AlertTriangle },
-  { id: "s19", num: "19", label: "Roadmap & Milestones", icon: Calendar },
-];
+// ─── Design Tokens ────────────────────────────────────────────────────────────
+const SECTION_COLOR: Record<string, string> = {
+  "01": "text-blue-400", "02": "text-red-400", "03": "text-amber-400",
+  "04": "text-purple-400", "05": "text-emerald-400", "06": "text-pink-400",
+  "07": "text-cyan-400", "08": "text-orange-400", "09": "text-violet-400",
+  "10": "text-teal-400", "11": "text-rose-400", "12": "text-indigo-400",
+  "13": "text-lime-400", "14": "text-sky-400", "15": "text-fuchsia-400",
+  "16": "text-yellow-400", "17": "text-green-400", "18": "text-red-400",
+  "19": "text-blue-400",
+};
 
+// ─── Reusable Components ───────────────────────────────────────────────────────
 function SectionHeader({ num, label, icon: Icon, description }: {
   num: string; label: string; icon: React.ElementType; description: string;
 }) {
   return (
-    <div className="mb-8">
-      <div className="flex items-center gap-3 mb-3">
-        <span className="text-xs font-mono text-primary/60 font-bold tracking-widest">{num}</span>
-        <div className="w-px h-5 bg-border" />
-        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <Icon className="w-4 h-4 text-primary" />
-        </div>
-        <h2 className="text-xl font-bold text-foreground">{label}</h2>
+    <div className="mb-6">
+      <div className="flex items-center gap-3 mb-2">
+        <span className={`text-3xl font-black tabular-nums ${SECTION_COLOR[num] ?? "text-primary"} opacity-30`}>{num}</span>
+        <Icon className={`w-5 h-5 ${SECTION_COLOR[num] ?? "text-primary"}`} />
+        <h2 className="text-xl font-bold text-foreground tracking-tight">{label}</h2>
       </div>
       <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl">{description}</p>
-      <div className="mt-4 h-px bg-gradient-to-r from-primary/40 via-border to-transparent" />
+      <div className={`mt-3 h-px bg-gradient-to-r from-transparent via-current to-transparent ${SECTION_COLOR[num] ?? "text-primary"} opacity-20`} />
     </div>
+  );
+}
+
+function Tag({ color, children }: { color: string; children: React.ReactNode }) {
+  const map: Record<string, string> = {
+    primary: "bg-primary/15 text-primary border-primary/30",
+    green: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+    amber: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    red: "bg-red-500/15 text-red-400 border-red-500/30",
+    blue: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+    purple: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+    cyan: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+    gray: "bg-white/5 text-muted-foreground border-white/10",
+  };
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border ${map[color] ?? map.gray}`}>
+      {children}
+    </span>
   );
 }
 
@@ -54,31 +58,30 @@ function Stat({ value, label, source, color = "text-primary" }: {
   value: string; label: string; source: string; color?: string;
 }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/3 to-transparent pointer-events-none" />
-      <div className={`text-2xl font-bold mb-1 ${color}`}>{value}</div>
-      <div className="text-xs font-medium text-foreground mb-1.5">{label}</div>
-      <div className="text-[10px] text-muted-foreground italic">Source: {source}</div>
+    <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
+      <div className={`text-2xl font-black tabular-nums ${color}`}>{value}</div>
+      <div className="text-xs font-semibold text-foreground leading-tight">{label}</div>
+      <div className="text-[10px] text-muted-foreground/60 leading-tight mt-auto pt-1 border-t border-border/50">{source}</div>
     </div>
   );
 }
 
-function DataTable({ headers, rows }: { headers: string[]; rows: React.ReactNode[][] }) {
+function DataTable({ headers, rows }: { headers: string[]; rows: (string | React.ReactNode)[][] }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-border">
-      <table className="w-full text-xs">
+      <table className="w-full text-[11px]">
         <thead>
-          <tr className="border-b border-border bg-white/3">
+          <tr className="bg-white/3 border-b border-border">
             {headers.map((h) => (
-              <th key={h} className="text-left px-4 py-3 text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">{h}</th>
+              <th key={h} className="px-3 py-2.5 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className={`border-b border-border/50 last:border-0 ${i % 2 === 0 ? "" : "bg-white/2"}`}>
+            <tr key={i} className={`border-b border-border/50 last:border-0 ${i % 2 === 0 ? "" : "bg-white/1"} hover:bg-white/3 transition-colors`}>
               {row.map((cell, j) => (
-                <td key={j} className="px-4 py-3 text-foreground leading-relaxed text-xs">{cell}</td>
+                <td key={j} className="px-3 py-2.5 text-muted-foreground leading-relaxed align-top">{cell}</td>
               ))}
             </tr>
           ))}
@@ -88,1244 +91,1405 @@ function DataTable({ headers, rows }: { headers: string[]; rows: React.ReactNode
   );
 }
 
-function Tag({ children, color = "primary" }: { children: React.ReactNode; color?: string }) {
-  const cls: Record<string, string> = {
-    primary: "bg-primary/10 text-primary border-primary/20",
-    red: "bg-red-500/10 text-red-400 border-red-500/20",
-    green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    amber: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+function InsightBox({ title, children, color = "blue" }: { title: string; children: React.ReactNode; color?: string }) {
+  const map: Record<string, string> = {
+    blue: "border-blue-500/20 bg-blue-500/5",
+    amber: "border-amber-500/20 bg-amber-500/5",
+    green: "border-emerald-500/20 bg-emerald-500/5",
+    red: "border-red-500/20 bg-red-500/5",
+    purple: "border-purple-500/20 bg-purple-500/5",
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-medium ${cls[color] ?? cls.primary}`}>
+    <div className={`rounded-xl border p-4 ${map[color] ?? map.blue}`}>
+      <div className="text-xs font-bold text-foreground mb-2">{title}</div>
       {children}
-    </span>
-  );
-}
-
-function Quote({ text, author }: { text: string; author: string }) {
-  return (
-    <div className="border-l-2 border-primary/50 pl-4 py-1 my-4">
-      <p className="text-sm text-foreground/80 italic leading-relaxed">"{text}"</p>
-      <p className="text-[11px] text-muted-foreground mt-1.5">— {author}</p>
     </div>
   );
 }
 
-function PersonaCard({ name, role, company, goals, pains, quote, initials, color }: {
-  name: string; role: string; company: string; goals: string[]; pains: string[];
-  quote: string; initials: string; color: string;
-}) {
-  return (
-    <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-      <div className="flex items-start gap-3">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold text-white flex-shrink-0 ${color}`}>
-          {initials}
-        </div>
-        <div>
-          <div className="text-sm font-bold text-foreground">{name}</div>
-          <div className="text-xs text-primary">{role}</div>
-          <div className="text-[11px] text-muted-foreground">{company}</div>
-        </div>
-      </div>
-      <Quote text={quote} author={`${name}, ${role}`} />
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <div className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider mb-2">Goals</div>
-          {goals.map((g) => (
-            <div key={g} className="flex items-start gap-1.5 mb-1.5">
-              <CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" />
-              <span className="text-[11px] text-foreground/80 leading-tight">{g}</span>
-            </div>
-          ))}
-        </div>
-        <div>
-          <div className="text-[10px] font-semibold text-red-400 uppercase tracking-wider mb-2">Pain Points</div>
-          {pains.map((p) => (
-            <div key={p} className="flex items-start gap-1.5 mb-1.5">
-              <AlertTriangle className="w-3 h-3 text-red-400 flex-shrink-0 mt-0.5" />
-              <span className="text-[11px] text-foreground/80 leading-tight">{p}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+// ─── TOC Data ─────────────────────────────────────────────────────────────────
+const TOC = [
+  { num: "01", label: "Executive Summary" },
+  { num: "02", label: "Problem Identification" },
+  { num: "03", label: "Pain Points & Research" },
+  { num: "04", label: "Gap Analysis" },
+  { num: "05", label: "Requirements Gathering" },
+  { num: "06", label: "User Personas" },
+  { num: "07", label: "Customer Journey Map" },
+  { num: "08", label: "Concept Testing" },
+  { num: "09", label: "Prioritization Framework" },
+  { num: "10", label: "A/B Testing Strategy" },
+  { num: "11", label: "User Story Detailing" },
+  { num: "12", label: "Functional Requirements" },
+  { num: "13", label: "Non-Functional Requirements" },
+  { num: "14", label: "System Architecture" },
+  { num: "15", label: "Orchestration & Data Flow" },
+  { num: "16", label: "API Integrations" },
+  { num: "17", label: "KPIs & Success Metrics" },
+  { num: "18", label: "Risks & Mitigations" },
+  { num: "19", label: "Roadmap & Milestones" },
+];
 
+// ─── Main Component ────────────────────────────────────────────────────────────
 export default function PRD() {
-  const [activeSection, setActiveSection] = useState("s01");
-  const mainRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState("01");
+  const [tocOpen, setTocOpen] = useState(true);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    const container = mainRef.current;
-    if (!container) return;
-    const observer = new IntersectionObserver(
+    observerRef.current = new IntersectionObserver(
       (entries) => {
-        entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); });
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          const top = visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+          const id = top.target.getAttribute("id");
+          if (id) setActiveSection(id.replace("s", ""));
+        }
       },
-      { root: null, rootMargin: "-20% 0px -70% 0px", threshold: 0 }
+      { rootMargin: "-10% 0px -70% 0px", threshold: 0 }
     );
-    SECTIONS.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
+    TOC.forEach(({ num }) => {
+      const el = document.getElementById(`s${num}`);
+      if (el) observerRef.current?.observe(el);
     });
-    return () => observer.disconnect();
+    return () => observerRef.current?.disconnect();
   }, []);
 
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollTo = (num: string) => {
+    document.getElementById(`s${num}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <LendingLayout title="Product Requirements Document" subtitle="LendAI · Agentic Commercial Lending Platform · v2.1 · March 2026">
-      <div className="flex h-full">
-        {/* TOC Sidebar */}
-        <aside className="hidden xl:flex flex-col w-64 flex-shrink-0 border-r border-border bg-[oklch(0.10_0.012_240)] overflow-y-auto">
-          <div className="p-4 border-b border-border sticky top-0 bg-[oklch(0.10_0.012_240)] z-10">
-            <div className="flex items-center gap-2 mb-1">
-              <FileText className="w-4 h-4 text-primary" />
-              <span className="text-xs font-bold text-foreground">Table of Contents</span>
-            </div>
-            <p className="text-[10px] text-muted-foreground">19 sections · ~45 min read</p>
-          </div>
-          <nav className="p-3 space-y-0.5 flex-1">
-            {SECTIONS.map(({ id, num, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => scrollTo(id)}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-all text-[11px] ${
-                  activeSection === id
-                    ? "bg-primary/15 text-primary border-l-2 border-primary pl-[8px]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/4"
-                }`}
-              >
-                <span className={`font-mono text-[9px] font-bold flex-shrink-0 ${activeSection === id ? "text-primary" : "text-muted-foreground/50"}`}>{num}</span>
-                <Icon className={`w-3 h-3 flex-shrink-0 ${activeSection === id ? "text-primary" : "text-muted-foreground/60"}`} />
-                <span className="leading-tight">{label}</span>
-              </button>
-            ))}
-          </nav>
-          <div className="p-4 border-t border-border">
-            <div className="rounded-lg bg-primary/5 border border-primary/15 p-3">
-              <div className="text-[10px] font-semibold text-primary mb-1">Document Status</div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] text-emerald-400">Approved for Development</span>
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-1.5">Owner: Head of Product</div>
-              <div className="text-[10px] text-muted-foreground">Last updated: Mar 2026</div>
-            </div>
-          </div>
+    <LendingLayout>
+      <div className="flex gap-0 min-h-screen">
+        {/* ── Sticky TOC Sidebar ── */}
+        <aside className={`sticky top-0 h-screen overflow-y-auto flex-shrink-0 border-r border-border bg-background/95 backdrop-blur transition-all duration-300 ${tocOpen ? "w-56" : "w-10"}`}>
+          <button
+            onClick={() => setTocOpen(!tocOpen)}
+            className="w-full flex items-center justify-between px-3 py-3 border-b border-border hover:bg-white/5 transition-colors"
+          >
+            {tocOpen && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Contents</span>}
+            <ChevronRight className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${tocOpen ? "rotate-180" : ""}`} />
+          </button>
+          {tocOpen && (
+            <nav className="py-2">
+              {TOC.map(({ num, label }) => (
+                <button
+                  key={num}
+                  onClick={() => scrollTo(num)}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-all hover:bg-white/5 group ${activeSection === num ? "bg-primary/10 border-r-2 border-primary" : ""}`}
+                >
+                  <span className={`text-[10px] font-black tabular-nums flex-shrink-0 ${activeSection === num ? "text-primary" : "text-muted-foreground/40"}`}>{num}</span>
+                  <span className={`text-[11px] leading-tight ${activeSection === num ? "text-foreground font-semibold" : "text-muted-foreground group-hover:text-foreground/80"}`}>{label}</span>
+                </button>
+              ))}
+            </nav>
+          )}
         </aside>
 
-        {/* Main scroll area */}
-        <div ref={mainRef} className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-6 py-8 space-y-20">
-
-            {/* Cover */}
-            <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card p-8">
-              <div className="flex items-start justify-between flex-wrap gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Tag color="primary">PRD v2.1</Tag>
-                    <Tag color="green">Approved</Tag>
-                    <Tag color="blue">Confidential</Tag>
-                  </div>
-                  <h1 className="text-3xl font-black text-foreground mb-2 leading-tight">
-                    LendAI: Agentic AI<br />Commercial Lending Platform
-                  </h1>
-                  <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
-                    A comprehensive product requirements document for reimagining the end-to-end commercial lending lifecycle using autonomous AI agents — reducing time-to-decision by 85%, cost per loan by 60%, and NPL rates by 25% while maintaining full regulatory compliance and human accountability.
-                  </p>
-                </div>
-                <div className="space-y-2 text-right">
-                  <div className="text-[11px] text-muted-foreground">Product Manager</div>
-                  <div className="text-sm font-semibold text-foreground">Senior PM, Lending Technology</div>
-                  <div className="text-[11px] text-muted-foreground mt-3">Target Market</div>
-                  <div className="text-sm font-semibold text-foreground">Banks & NBFCs (Tier 1–3)</div>
-                  <div className="text-[11px] text-muted-foreground mt-3">Market Opportunity</div>
-                  <div className="text-sm font-bold text-primary">$26.5T Global Commercial Lending</div>
-                </div>
+        {/* ── Main Content ── */}
+        <main className="flex-1 min-w-0 overflow-y-auto">
+          {/* Cover */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-background via-primary/5 to-background border-b border-border px-8 py-14">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent pointer-events-none" />
+            <div className="relative max-w-4xl">
+              <div className="flex items-center gap-2 mb-4">
+                <Tag color="primary">Product Requirements Document</Tag>
+                <Tag color="green">v2.0 — Comprehensive Edition</Tag>
+                <Tag color="gray">March 2025</Tag>
               </div>
-              <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <h1 className="text-4xl font-black text-foreground tracking-tight mb-3 leading-tight">
+                LendAI: Agentic AI<br />
+                <span className="text-primary">Commercial Lending Platform</span>
+              </h1>
+              <p className="text-base text-muted-foreground leading-relaxed max-w-2xl mb-6">
+                A complete product specification for reimagining the end-to-end commercial lending lifecycle using autonomous AI agents — covering SME, mid-market, and corporate segments for banks and NBFCs.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl">
                 {[
-                  { v: "85%", l: "Faster Decisions" },
-                  { v: "60%", l: "Lower Cost/Loan" },
-                  { v: "25%", l: "NPL Reduction" },
-                  { v: "3×", l: "Throughput Increase" },
+                  { label: "Sections", value: "19" },
+                  { label: "AI Agents", value: "9" },
+                  { label: "Lifecycle Stages", value: "8" },
+                  { label: "Rollout Phases", value: "3" },
                 ].map((m) => (
-                  <div key={m.l} className="text-center bg-white/3 rounded-xl p-3 border border-border/50">
-                    <div className="text-xl font-black text-primary">{m.v}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">{m.l}</div>
+                  <div key={m.label} className="bg-white/5 rounded-lg p-3 text-center border border-white/10">
+                    <div className="text-2xl font-black text-primary">{m.value}</div>
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">{m.label}</div>
                   </div>
                 ))}
               </div>
             </div>
+          </div>
 
-            {/* S01 */}
+          {/* Sections */}
+          <div className="px-8 py-10 space-y-16 max-w-5xl">
+
+            {/* ── S01: Executive Summary ── */}
             <section id="s01">
               <SectionHeader num="01" label="Executive Summary" icon={Star}
-                description="The strategic case for building an agentic AI commercial lending platform — what we are building, why now, and what success looks like." />
+                description="The strategic case for LendAI — why commercial lending is broken, why agentic AI is the right solution now, and what measurable outcomes banks and NBFCs can expect." />
               <div className="space-y-6">
-                <p className="text-sm text-foreground/90 leading-relaxed">
-                  Commercial lending is a $26.5 trillion global market that remains fundamentally broken at the operational level. The average SME loan takes <strong className="text-foreground">21 days</strong> to approve, costs a bank <strong className="text-foreground">$11,319</strong> to originate, and is underwritten using static scorecards that fail to capture the dynamic risk signals embedded in unstructured data — financial statements, news sentiment, supply chain disruptions, and management quality.
-                </p>
-                <p className="text-sm text-foreground/90 leading-relaxed">
-                  LendAI is a modular, agentic AI platform that deploys nine specialized AI agents across the full lending lifecycle. Unlike traditional Loan Origination Systems (LOS) that automate workflows, LendAI agents <em>reason, decide, and act</em> — orchestrating document collection, performing financial spreading, drafting credit memos, routing approvals, and monitoring portfolios autonomously. Humans remain accountable for credit decisions; AI eliminates the 73% of time currently spent on non-value-added tasks.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {[
-                    { icon: Target, color: "text-primary", title: "Strategic Objective", text: "Become the default AI infrastructure layer for commercial lending at Tier 1–3 banks and NBFCs, processing $500B+ in loan originations by Year 3." },
-                    { icon: Zap, color: "text-amber-400", title: "Why Now", text: "LLM vision APIs can now read financial statements with 94%+ accuracy. Agentic frameworks enable multi-step reasoning. Regulators are publishing AI governance frameworks (SR 11-7, EU AI Act)." },
-                    { icon: Award, color: "text-emerald-400", title: "Differentiation", text: "Autonomous but controllable agents with full audit trails, learned underwriting behavior vs. static scorecards, and built-in explainability — not a chatbot bolted onto a legacy LOS." },
-                  ].map((c) => (
-                    <div key={c.title} className="bg-card border border-border rounded-xl p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <c.icon className={`w-4 h-4 ${c.color}`} />
-                        <span className="text-xs font-bold text-foreground">{c.title}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{c.text}</p>
-                    </div>
-                  ))}
+                <InsightBox title="The Core Problem" color="red">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Commercial lending is the most profitable product in banking — and the most operationally broken. A process that should take 3–5 days takes 21 days on average. A task that requires 2 hours of analysis consumes 8 hours of manual work. A portfolio that should be monitored daily is reviewed quarterly. The result: $47B in foregone SME revenue annually, $180B in preventable NPLs, and a generation of borrowers who have abandoned banks for faster alternatives.
+                  </p>
+                </InsightBox>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <Stat value="$26.5T" label="Global commercial lending market" source="World Bank, 2024" color="text-primary" />
+                  <Stat value="21 days" label="Average SME loan decision time" source="Federal Reserve Small Business Survey, 2024" color="text-red-400" />
+                  <Stat value="$11,319" label="Cost to originate one commercial loan" source="Oliver Wyman Banking Report, 2024" color="text-red-400" />
+                  <Stat value="73%" label="Underwriter time on non-analysis tasks" source="McKinsey Global Banking Survey, 2024" color="text-amber-400" />
                 </div>
+
+                <InsightBox title="Product Hypothesis" color="blue">
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                    <strong className="text-foreground">We believe</strong> that banks and NBFCs processing commercial loans will achieve measurably better time-to-decision, credit quality, and operating cost outcomes by deploying a modular agentic AI platform that automates document intelligence, financial spreading, credit memo drafting, compliance checks, and portfolio monitoring — while keeping humans accountable for all final credit decisions.
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    <strong className="text-foreground">We will know this is true when:</strong> (1) Time-to-decision for SME loans falls from 21 days to ≤5 days within 6 months of deployment; (2) Underwriter throughput increases from 3–4 to ≥8 deals/week; (3) NPL rate improves by ≥15% vs. baseline within 18 months; (4) Borrower NPS improves from 32 to ≥50.
+                  </p>
+                </InsightBox>
+
                 <DataTable
-                  headers={["Dimension", "Traditional LOS", "LendAI Agentic Platform"]}
+                  headers={["Dimension", "Current State", "LendAI Target", "Business Value", "Source"]}
                   rows={[
-                    ["Decision Speed", "15–21 days", <Tag color="green">3–5 days (Phase 1) → same day (Phase 3)</Tag>],
-                    ["Cost per Loan", "$11,319 avg (Oliver Wyman)", <Tag color="green">$4,500 target (60% reduction)</Tag>],
-                    ["Document Processing", "Manual, 2–4 days", <Tag color="green">Automated, &lt;30 min, 94% accuracy</Tag>],
-                    ["Underwriting", "Static scorecards", <Tag color="green">Dynamic, learned, multi-signal</Tag>],
-                    ["Explainability", "Black box or none", <Tag color="green">Every decision cited to source data</Tag>],
-                    ["Portfolio Monitoring", "Quarterly reviews", <Tag color="green">Real-time EWS, 45-day early warning</Tag>],
-                    ["Regulatory Compliance", "Manual checklist", <Tag color="green">Automated, audit-ready, SR 11-7 aligned</Tag>],
+                    ["Time-to-decision (SME)", "21 days", "3–5 days (Phase 1)", "$12.4M/yr revenue uplift from faster decisions", "Federal Reserve, 2024"],
+                    ["Cost per loan originated", "$11,319", "$4,500 (Phase 3)", "$6.8M/yr savings on 1,000 loans", "Oliver Wyman, 2024"],
+                    ["Underwriter throughput", "3–4 deals/week", "12–15 deals/week", "4× capacity without headcount increase", "McKinsey, 2024"],
+                    ["NPL rate", "4.2% (industry avg)", "3.0% (Phase 3)", "$8.2M/yr NPL loss reduction", "World Bank, 2024"],
+                    ["EWS lead time", "0 days (reactive)", "45–60 days proactive", "Intervention before default, not after", "Deloitte, 2024"],
+                    ["Borrower NPS", "32 (industry avg)", "65 (Phase 3)", "Higher retention, lower CAC", "Bain & Co., 2023"],
+                    ["Compliance check time", "2–3 hours/deal", "10 minutes automated", "95%+ pass rate, zero manual errors", "Primary research, 2024"],
                   ]}
                 />
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[
+                    { title: "Why Now?", icon: Clock, color: "text-amber-400", points: ["LLM capabilities crossed the accuracy threshold for financial document understanding in 2024 (GPT-4o vision: 94%+ on financial statements)", "Regulatory frameworks (SR 11-7, EU AI Act) now provide a compliance path for AI in credit decisions", "Fintech lenders (Kabbage, OnDeck, Tide) have taken 18% of SME market share — banks must respond", "Cloud-native CBS integrations now available via REST APIs at 80% of Tier-1 banks"] },
+                    { title: "Why LendAI?", icon: Brain, color: "text-primary", points: ["End-to-end lifecycle coverage — not a point solution", "Agentic architecture learns from every decision, improving over time", "Explainability-first design: every AI output is cited, traceable, and auditable", "Human-in-the-loop at every critical decision point — regulators can examine any decision in 24 hours"] },
+                    { title: "Why Not Wait?", icon: TrendingDown, color: "text-red-400", points: ["Every 6-month delay costs ~$6.2M in foregone efficiency savings (1,000 loans/yr)", "Competitor banks deploying AI now will have 2–3 years of proprietary training data advantage by 2027", "Regulatory window for AI in lending is open now — likely to tighten post-2026", "SME borrowers who abandon the process don't come back: 58% go to a competitor permanently"] },
+                  ].map((c) => (
+                    <InsightBox key={c.title} title={c.title} color="blue">
+                      <div className="space-y-1.5">
+                        {c.points.map((p) => (
+                          <div key={p} className="flex items-start gap-2">
+                            <c.icon className={`w-3 h-3 flex-shrink-0 mt-0.5 ${c.color}`} />
+                            <span className="text-[11px] text-muted-foreground leading-relaxed">{p}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </InsightBox>
+                  ))}
+                </div>
               </div>
             </section>
 
-            {/* S02 */}
+            {/* ── S02: Problem Identification ── */}
             <section id="s02">
               <SectionHeader num="02" label="Problem Identification" icon={AlertTriangle}
-                description="A structured breakdown of the root causes behind commercial lending inefficiency — using the 5 Whys framework and Jobs-to-Be-Done theory to identify where AI can create the most value." />
+                description="A structured decomposition of the commercial lending problem using the 5 Whys methodology, Jobs-to-Be-Done framework, and a problem severity matrix across all five user personas." />
               <div className="space-y-6">
-                <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Lightbulb className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm font-bold text-amber-300">Core Problem Statement</span>
-                  </div>
-                  <p className="text-sm text-foreground/90 leading-relaxed">
-                    Commercial banks and NBFCs are losing $47B annually in foregone revenue from SME loans they decline not due to credit risk, but due to operational inability to process applications efficiently. Simultaneously, they are carrying $180B in preventable NPLs from portfolio monitoring failures. The root cause is not a lack of data — it is a lack of systems that can reason over that data at scale.
-                  </p>
-                </div>
-                <div className="space-y-3">
-                  <div className="text-sm font-bold text-foreground mb-2">5 Whys Root Cause Analysis</div>
-                  {[
-                    { why: "Why do 40% of SME loan applications take >21 days?", because: "Because underwriters spend 73% of their time on data gathering and document processing, not analysis." },
-                    { why: "Why do underwriters spend 73% on non-analysis tasks?", because: "Because documents arrive in unstructured formats (PDFs, scans) that require manual extraction and spreading." },
-                    { why: "Why is there no automated extraction?", because: "Because legacy LOS systems were built for workflow routing, not document understanding or AI reasoning." },
-                    { why: "Why weren't legacy systems built for AI?", because: "Because until 2023, LLM vision APIs lacked the accuracy needed for financial document parsing at production quality." },
-                    { why: "Why hasn't the industry adopted newer AI?", because: "Because banks lack the product framework to deploy AI with the explainability and audit trails required by SR 11-7 and Basel III." },
-                  ].map((item, i) => (
-                    <div key={i} className="flex gap-3">
-                      <div className="flex flex-col items-center">
-                        <div className="w-6 h-6 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">{i + 1}</div>
-                        {i < 4 && <div className="w-px flex-1 bg-border mt-1 min-h-[16px]" />}
-                      </div>
-                      <div className="pb-3">
-                        <div className="text-xs font-semibold text-foreground mb-1">{item.why}</div>
-                        <div className="text-xs text-muted-foreground leading-relaxed pl-3 border-l border-border">{item.because}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-card border border-border rounded-xl p-4">
-                    <div className="text-xs font-bold text-foreground mb-3">Jobs-to-Be-Done (JTBD) Framework</div>
+                <InsightBox title="5 Whys Root Cause Analysis" color="red">
+                  <div className="space-y-2 mt-2">
                     {[
-                      { persona: "RM", jtbd: "Help me give my client a decision in days, not weeks, so I don't lose the deal to a fintech." },
-                      { persona: "Underwriter", jtbd: "Help me focus on judgment calls, not data entry — I want to analyze risk, not copy numbers from PDFs." },
-                      { persona: "CRO", jtbd: "Give me a portfolio view that tells me which accounts are deteriorating before they miss a payment." },
-                      { persona: "COO", jtbd: "Show me how to process 3× the loan volume without hiring 3× the headcount." },
-                    ].map((j) => (
-                      <div key={j.persona} className="flex gap-2 mb-3 last:mb-0">
-                        <Tag color="primary">{j.persona}</Tag>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed flex-1 italic">"{j.jtbd}"</p>
+                      { why: "Why 1", q: "Why does it take 21 days to approve an SME loan?", a: "Because document collection, spreading, credit memo drafting, and approval routing are all done manually and sequentially." },
+                      { why: "Why 2", q: "Why are these steps manual and sequential?", a: "Because the LOS was built to track workflow, not to perform work — it routes tasks between humans but doesn't execute them." },
+                      { why: "Why 3", q: "Why wasn't the LOS built to perform work?", a: "Because until 2023, AI could not reliably extract structured data from unstructured financial documents with the accuracy required for credit decisions." },
+                      { why: "Why 4", q: "Why hasn't the bank adopted newer AI capabilities?", a: "Because there is no enterprise-grade, bank-safe, explainable AI platform purpose-built for commercial lending — only generic LLM tools and point solutions." },
+                      { why: "Why 5", q: "Why doesn't such a platform exist?", a: "Because building it requires deep domain expertise in commercial credit, AI engineering, regulatory compliance, and CBS integration simultaneously — a combination that has not existed in a single product until now." },
+                    ].map((w) => (
+                      <div key={w.why} className="flex gap-3">
+                        <div className="flex-shrink-0 w-12 text-[10px] font-bold text-red-400 pt-0.5">{w.why}</div>
+                        <div>
+                          <div className="text-[11px] font-semibold text-foreground">{w.q}</div>
+                          <div className="text-[11px] text-muted-foreground leading-relaxed">{w.a}</div>
+                        </div>
                       </div>
                     ))}
                   </div>
-                  <div className="bg-card border border-border rounded-xl p-4">
-                    <div className="text-xs font-bold text-foreground mb-3">Problem Severity Matrix</div>
+                </InsightBox>
+
+                <div>
+                  <div className="text-sm font-bold text-foreground mb-3">Jobs-to-Be-Done Framework — All 5 Personas</div>
+                  <DataTable
+                    headers={["Persona", "Functional Job (What they need to do)", "Emotional Job (How they want to feel)", "Social Job (How they want to be seen)"]}
+                    rows={[
+                      [
+                        <Tag color="blue">Relationship Manager</Tag>,
+                        "Close more deals faster; give clients real-time status updates; spend time on client relationships, not paperwork",
+                        "Confident, not anxious; in control of the deal pipeline; not embarrassed by slow turnaround times",
+                        "Trusted advisor to clients; top performer on the team; the RM who always delivers"
+                      ],
+                      [
+                        <Tag color="purple">Credit Underwriter</Tag>,
+                        "Analyze credit risk accurately and efficiently; write defensible credit memos; manage a growing deal pipeline without burning out",
+                        "Intellectually engaged in analysis, not data entry; confident in recommendations; not overwhelmed by volume",
+                        "The expert whose judgment is trusted; the analyst who catches risks others miss; a valued decision-maker"
+                      ],
+                      [
+                        <Tag color="red">Chief Risk Officer</Tag>,
+                        "Maintain portfolio quality; detect deterioration early; demonstrate risk management capability to the board and regulators",
+                        "In control of portfolio risk; not surprised by NPLs; confident in front of regulators and the board",
+                        "The risk leader who prevented losses; the CRO who modernized risk management; a strategic voice in the C-suite"
+                      ],
+                      [
+                        <Tag color="green">COO / Operations</Tag>,
+                        "Process loans faster with fewer people; eliminate manual handoffs; ensure compliance without manual checklists",
+                        "Efficient, not firefighting; proud of the team's throughput; not stressed about audit findings",
+                        "The operations leader who transformed the lending process; the COO who delivered cost savings"
+                      ],
+                      [
+                        <Tag color="amber">CXO / Board</Tag>,
+                        "Grow the loan book profitably; reduce operating costs; maintain regulatory standing; compete with fintechs",
+                        "Confident in the bank's competitive position; not worried about NPL surprises; proud of the bank's innovation story",
+                        "A forward-thinking leader; the bank that adopted AI responsibly; a model for the industry"
+                      ],
+                    ]}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <InsightBox title="Problem Severity Matrix" color="amber">
                     <DataTable
                       headers={["Problem", "Frequency", "Impact", "Priority"]}
                       rows={[
-                        ["Manual doc spreading", "Daily", <Tag color="red">Critical</Tag>, <Tag color="red">P0</Tag>],
-                        ["Slow credit memo drafting", "Per deal", <Tag color="red">High</Tag>, <Tag color="red">P0</Tag>],
+                        ["Manual document spreading", "Daily", <Tag color="red">Critical</Tag>, <Tag color="red">P0</Tag>],
+                        ["Slow credit memo drafting", "Per deal", <Tag color="red">Critical</Tag>, <Tag color="red">P0</Tag>],
                         ["Reactive portfolio monitoring", "Monthly", <Tag color="red">Critical</Tag>, <Tag color="red">P0</Tag>],
-                        ["Manual compliance checks", "Per deal", <Tag color="amber">Medium</Tag>, <Tag color="amber">P1</Tag>],
-                        ["DOA routing delays", "Per deal", <Tag color="amber">Medium</Tag>, <Tag color="amber">P1</Tag>],
+                        ["Manual compliance checks", "Per deal", <Tag color="amber">High</Tag>, <Tag color="amber">P1</Tag>],
+                        ["DOA routing delays", "Per deal", <Tag color="amber">High</Tag>, <Tag color="amber">P1</Tag>],
+                        ["Loan booking data entry", "Per deal", <Tag color="amber">Medium</Tag>, <Tag color="amber">P1</Tag>],
+                        ["Covenant tracking gaps", "Monthly", <Tag color="red">Critical</Tag>, <Tag color="red">P0</Tag>],
                       ]}
                     />
-                  </div>
+                  </InsightBox>
+                  <InsightBox title="Problem Framing: What We Are NOT Building" color="purple">
+                    <div className="space-y-2 mt-1">
+                      {[
+                        "NOT a fully automated credit decision engine — humans remain accountable for all credit decisions",
+                        "NOT a replacement for credit judgment — AI augments and accelerates, it does not substitute",
+                        "NOT a consumer lending platform — purpose-built for commercial (SME, mid-market, corporate)",
+                        "NOT a generic LLM chatbot — purpose-built agents with domain-specific tools and guardrails",
+                        "NOT a black box — every AI output is explainable, cited, and auditable by regulators",
+                      ].map((p) => (
+                        <div key={p} className="flex items-start gap-2">
+                          <Shield className="w-3 h-3 text-purple-400 flex-shrink-0 mt-0.5" />
+                          <span className="text-[11px] text-muted-foreground leading-relaxed">{p}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </InsightBox>
                 </div>
               </div>
             </section>
 
-            {/* S03 */}
+            {/* ── S03: Pain Points & Research — 8-Stage Lifecycle ── */}
             <section id="s03">
               <SectionHeader num="03" label="Pain Points & Research" icon={TrendingDown}
-                description="Primary and secondary research findings from 47 interviews with RMs, underwriters, credit officers, and CXOs across 12 banks and NBFCs in India, Southeast Asia, and the US." />
+                description="Primary research from 47 interviews across 12 institutions combined with secondary research to map pain points across all 8 stages of the commercial lending lifecycle. Every statistic is cited to a primary source." />
               <div className="space-y-6">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <Stat value="21 days" label="Avg SME loan decision time" source="Federal Reserve Small Business Survey, 2024" color="text-red-400" />
-                  <Stat value="$11,319" label="Cost to originate one commercial loan" source="Oliver Wyman Banking Report, 2024" color="text-red-400" />
-                  <Stat value="73%" label="Underwriter time on non-analysis tasks" source="McKinsey Global Banking Survey, 2024" color="text-amber-400" />
-                  <Stat value="58%" label="SME applicants abandon process mid-way" source="Bain & Company SME Banking, 2023" color="text-red-400" />
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <Stat value="$47B" label="Annual foregone revenue from declined SME loans" source="IFC SME Finance Report, 2024" color="text-red-400" />
+                  <Stat value="47" label="Stakeholder interviews conducted" source="Primary Research, 2024–2025" color="text-primary" />
+                  <Stat value="12" label="Banks and NBFCs across 3 geographies" source="India, Southeast Asia, United States" color="text-primary" />
+                  <Stat value="$47B" label="Annual foregone SME revenue from slow lending" source="IFC SME Finance Report, 2024" color="text-red-400" />
                   <Stat value="$180B" label="Preventable NPLs from monitoring failures" source="S&P Global Market Intelligence, 2024" color="text-red-400" />
-                  <Stat value="4.2%" label="Global commercial loan NPL rate" source="World Bank Financial Soundness, 2024" color="text-amber-400" />
-                  <Stat value="47" label="Interviews conducted across 12 institutions" source="Primary Research, 2024–2025" color="text-primary" />
                 </div>
-                <div className="space-y-4">
-                  <div className="text-sm font-bold text-foreground">Key Research Findings by Persona</div>
-                  {[
-                    {
-                      persona: "Relationship Manager (n=14)", color: "bg-blue-600",
-                      findings: [
-                        "Spends 4.2 hours/day on administrative tasks vs. 1.8 hours on client-facing activities (McKinsey, 2024)",
-                        "Loses 23% of deals to faster competitors (primarily fintechs) during the documentation phase",
-                        "Cannot give clients real-time status updates — must manually check with ops team",
-                        "Manually prepares deal summaries that take 3–5 hours per application",
-                      ]
-                    },
-                    {
-                      persona: "Credit Underwriter (n=18)", color: "bg-purple-600",
-                      findings: [
-                        "Spreads 8–12 financial statements per week manually — each taking 2–4 hours",
-                        "Relies on 15–20 year-old static scorecards that don't capture digital revenue streams",
-                        "Writes credit memos from scratch for every deal — no institutional memory or templates",
-                        "Cannot process more than 3–4 complex deals per week; capacity is the bottleneck",
-                      ]
-                    },
-                    {
-                      persona: "Credit Risk Officer / CRO (n=9)", color: "bg-red-600",
-                      findings: [
-                        "Receives early warning signals on average 45 days after deterioration begins (Deloitte, 2024)",
-                        "Portfolio monitoring is quarterly at best — reactive, not proactive",
-                        "Cannot explain model decisions to regulators — 'black box' problem is a board-level concern",
-                        "Covenant tracking is manual; breaches are discovered during annual reviews, not in real time",
-                      ]
-                    },
-                    {
-                      persona: "COO / Operations (n=6)", color: "bg-emerald-600",
-                      findings: [
-                        "Document collection takes 5–8 days per deal; 34% of documents are incomplete on first submission",
-                        "Compliance checks are manual checklists — 2–3 hours per deal with high error rates",
-                        "Loan booking requires 12–15 manual data entry steps across 3–4 systems",
-                        "No single source of truth for deal status — teams use email threads and spreadsheets",
-                      ]
-                    },
-                  ].map((r) => (
-                    <div key={r.persona} className="bg-card border border-border rounded-xl p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className={`w-2 h-2 rounded-full ${r.color}`} />
-                        <span className="text-xs font-bold text-foreground">{r.persona}</span>
-                      </div>
-                      <div className="space-y-2">
-                        {r.findings.map((f) => (
-                          <div key={f} className="flex items-start gap-2">
-                            <AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" />
-                            <span className="text-xs text-muted-foreground leading-relaxed">{f}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
 
-            {/* S04 */}
-            <section id="s04">
-              <SectionHeader num="04" label="Gap Analysis" icon={BarChart2}
-                description="A structured comparison of current-state capabilities vs. the desired future state, identifying the specific gaps that LendAI must close to deliver measurable business value." />
-              <div className="space-y-5">
-                <DataTable
-                  headers={["Capability Area", "Current State", "Desired State", "Gap Severity", "LendAI Solution"]}
-                  rows={[
-                    ["Document Intake", "Manual upload, email, courier", "Automated multi-channel ingestion", <Tag color="red">Critical</Tag>, "Document Orchestration Agent"],
-                    ["Document Classification", "Manual sorting by ops staff", "AI classification in &lt;30 sec, 94%+ accuracy", <Tag color="red">Critical</Tag>, "Document Understanding Agent"],
-                    ["Financial Spreading", "Manual Excel, 2–4 hrs/statement", "Automated extraction, &lt;5 min, 94% accuracy", <Tag color="red">Critical</Tag>, "Spreading Agent"],
-                    ["Credit Memo Drafting", "Manual, 4–8 hrs per deal", "AI-drafted in &lt;10 min, cited to source data", <Tag color="red">Critical</Tag>, "Underwriting Copilot Agent"],
-                    ["Eligibility Screening", "Manual pre-screening, 1–2 days", "Instant AI eligibility check at intake", <Tag color="amber">High</Tag>, "Intake & Eligibility Agent"],
-                    ["Compliance Checks", "Manual checklist, 2–3 hrs", "Automated 12-point check, real-time", <Tag color="amber">High</Tag>, "Compliance & Policy Agent"],
-                    ["Approval Routing", "Manual email-based DOA routing", "Automated DOA routing with digital signatures", <Tag color="amber">High</Tag>, "Approval Flow Agent"],
-                    ["Loan Booking", "12–15 manual data entry steps", "Automated booking with CBS integration", <Tag color="amber">High</Tag>, "Closing & Booking Agent"],
-                    ["Portfolio Monitoring", "Quarterly manual reviews", "Real-time EWS with 45-day early warning", <Tag color="red">Critical</Tag>, "Monitoring & EWS Agent"],
-                    ["Workout Support", "Ad hoc, reactive", "Structured recovery playbooks, proactive", <Tag color="blue">Medium</Tag>, "Workout & Recovery Agent"],
-                  ]}
-                />
-                <div className="bg-card border border-border rounded-xl p-5">
-                  <div className="text-sm font-bold text-foreground mb-4">Competitive Landscape Gap</div>
-                  <DataTable
-                    headers={["Competitor", "Type", "Strengths", "Critical Gaps vs. LendAI"]}
-                    rows={[
-                      ["nCino", "Cloud LOS", "Salesforce integration, workflow automation", "No agentic AI, no document understanding, no learned underwriting"],
-                      ["Temenos Infinity", "Core Banking + LOS", "Enterprise scale, global compliance", "Rigid rules engine, no generative AI, high implementation cost"],
-                      ["Blend", "Digital lending UX", "Borrower experience, consumer lending", "Weak commercial lending, no AI agents, no portfolio monitoring"],
-                      ["Zest AI", "Credit scoring AI", "Alternative data scoring, fair lending", "Point solution only — no end-to-end lifecycle coverage"],
-                      ["Upstart (commercial)", "AI underwriting", "ML-based risk models", "Consumer-focused, no document orchestration, no agentic architecture"],
-                    ]}
-                  />
-                </div>
-              </div>
-            </section>
+                <div className="text-sm font-bold text-foreground">The 8-Stage Commercial Lending Lifecycle — Pain Points & Jobs-to-Be-Done</div>
 
-            {/* S05 */}
-            <section id="s05">
-              <SectionHeader num="05" label="Requirements Gathering" icon={BookOpen}
-                description="Methodology and outcomes of the requirements gathering process — combining stakeholder interviews, regulatory analysis, and technical discovery to define what LendAI must do." />
-              <div className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {[
-                    { method: "Stakeholder Interviews", count: "47 interviews", detail: "RMs, underwriters, CROs, COOs, compliance officers across 12 institutions in 3 geographies" },
-                    { method: "Regulatory Analysis", count: "8 frameworks", detail: "SR 11-7, Basel III, EU AI Act, RBI Master Directions, MAS TRM, FFIEC guidelines, GDPR, CCPA" },
-                    { method: "Technical Discovery", count: "6 weeks", detail: "API audit of 14 core banking systems, LOS platforms, credit bureaus, and data providers" },
-                  ].map((m) => (
-                    <div key={m.method} className="bg-card border border-border rounded-xl p-4">
-                      <div className="text-xs font-bold text-primary mb-1">{m.method}</div>
-                      <div className="text-lg font-bold text-foreground mb-2">{m.count}</div>
-                      <div className="text-[11px] text-muted-foreground leading-relaxed">{m.detail}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="text-sm font-bold text-foreground">MoSCoW Prioritization of Requirements</div>
-                <DataTable
-                  headers={["Requirement", "Category", "Priority", "Rationale"]}
-                  rows={[
-                    ["Real-time document classification with confidence scores", "Functional", <Tag color="red">Must Have</Tag>, "Core value proposition; eliminates 2–4 day manual process"],
-                    ["LLM-powered financial spreading with source citations", "Functional", <Tag color="red">Must Have</Tag>, "Eliminates 73% of underwriter non-analysis time"],
-                    ["AI credit memo generation with explainable citations", "Functional", <Tag color="red">Must Have</Tag>, "Reduces memo drafting from 8 hrs to &lt;10 min"],
-                    ["Human-in-the-loop override at every agent decision", "Governance", <Tag color="red">Must Have</Tag>, "Regulatory requirement (SR 11-7); bank accountability"],
-                    ["Full audit trail for every agent action", "Compliance", <Tag color="red">Must Have</Tag>, "Required for regulatory examination and model risk mgmt"],
-                    ["DOA-based approval routing with digital signatures", "Functional", <Tag color="amber">Should Have</Tag>, "Eliminates email-based routing delays"],
-                    ["Real-time EWS with covenant tracking", "Functional", <Tag color="amber">Should Have</Tag>, "Addresses $180B NPL problem; high business impact"],
-                    ["CBS integration for automated loan booking", "Integration", <Tag color="amber">Should Have</Tag>, "Eliminates 12–15 manual booking steps"],
-                    ["Borrower self-service portal", "UX", <Tag color="blue">Could Have</Tag>, "Improves borrower NPS; reduces RM admin time"],
-                    ["Predictive deal scoring at pre-origination", "Functional", <Tag color="blue">Could Have</Tag>, "Phase 3 capability; requires 12+ months of training data"],
-                  ]}
-                />
-              </div>
-            </section>
-
-            {/* S06 */}
-            <section id="s06">
-              <SectionHeader num="06" label="User Personas" icon={Users}
-                description="Five research-validated personas representing the primary users and decision-makers for LendAI — built from 47 interviews and behavioral observation sessions." />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <PersonaCard
-                  name="Priya Sharma" role="Senior Relationship Manager" company="Tier 1 Private Bank, Mumbai"
-                  initials="PS" color="bg-blue-600"
-                  quote="I spend more time chasing documents than building client relationships. I need AI to handle the paperwork so I can focus on the deal."
-                  goals={["Close 40% more deals per quarter", "Give clients real-time status updates", "Reduce deal cycle from 21 to 5 days", "Build deeper client relationships"]}
-                  pains={["4.2 hrs/day on admin tasks", "Loses deals to fintechs during doc phase", "No visibility into underwriting queue", "Manual deal summary preparation"]}
-                />
-                <PersonaCard
-                  name="David Chen" role="Credit Underwriter" company="Regional NBFC, Singapore"
-                  initials="DC" color="bg-purple-600"
-                  quote="I can analyze 3 complex deals a week. With AI handling spreading and memo drafting, I could review 12. The bottleneck is not my judgment — it's the prep work."
-                  goals={["Increase deal throughput 4×", "Focus on complex risk judgment", "Consistent, defensible credit decisions", "Reduce rework from incomplete data"]}
-                  pains={["2–4 hrs per financial statement spread", "Static scorecards miss digital businesses", "Writes every credit memo from scratch", "No institutional memory between deals"]}
-                />
-                <PersonaCard
-                  name="Rajesh Nair" role="Chief Risk Officer" company="Mid-size Bank, Chennai"
-                  initials="RN" color="bg-red-600"
-                  quote="I find out about deteriorating accounts 45 days after the signals were there. By then, we're already in workout. I need a system that tells me before the borrower misses a payment."
-                  goals={["Reduce NPL ratio by 25%", "Proactive portfolio monitoring", "Explainable AI for regulators", "Real-time covenant tracking"]}
-                  pains={["Quarterly reviews miss early signals", "Cannot explain model decisions to RBI", "Covenant breaches found in annual reviews", "No single portfolio risk dashboard"]}
-                />
-                <PersonaCard
-                  name="Sarah Williams" role="Head of Credit Operations" company="US Community Bank"
-                  initials="SW" color="bg-emerald-600"
-                  quote="We have 12 people doing work that AI could do in minutes. I need to redeploy that talent to exception handling and client service, not data entry."
-                  goals={["3× loan volume without headcount growth", "Eliminate manual compliance checklists", "Single source of truth for deal status", "Automated CBS booking"]}
-                  pains={["34% of docs incomplete on first submission", "12–15 manual steps for loan booking", "No real-time deal status visibility", "Compliance errors in manual checklists"]}
-                />
-                <PersonaCard
-                  name="Michael Torres" role="Chief Executive Officer" company="Tier 2 Bank, Philippines"
-                  initials="MT" color="bg-amber-600"
-                  quote="Our competitors are approving SME loans in 48 hours. We take 3 weeks. That's not a risk management advantage — it's a market share problem."
-                  goals={["Win SME market share from fintechs", "Improve ROE on commercial lending book", "Demonstrate AI governance to board", "Scale without proportional cost growth"]}
-                  pains={["Losing deals to faster competitors", "Cost per loan 2× fintech competitors", "Board pressure on AI explainability", "Cannot scale without hiring"]}
-                />
-              </div>
-            </section>
-
-            {/* S07 */}
-            <section id="s07">
-              <SectionHeader num="07" label="Customer Journey Map" icon={Map}
-                description="End-to-end journey for the primary use case — new-to-bank SME working capital loan — comparing Today vs. Agentic state across all 8 lifecycle stages." />
-              <div className="space-y-5">
-                <div className="overflow-x-auto">
-                  <div className="min-w-[700px]">
-                    <div className="grid grid-cols-8 gap-1 mb-2">
-                      {["Pre-Orig", "Intake", "Documents", "Underwriting", "Approval", "Closing", "Monitoring", "Recovery"].map((s) => (
-                        <div key={s} className="text-center text-[10px] font-bold text-primary bg-primary/10 rounded-lg py-2 px-1">{s}</div>
-                      ))}
-                    </div>
-                    <div className="mb-2">
-                      <div className="text-[10px] font-bold text-red-400 mb-1 px-1">TODAY (21+ days)</div>
-                      <div className="grid grid-cols-8 gap-1">
-                        {[
-                          "RM manually qualifies via calls. No data enrichment. 2–3 days.",
-                          "Paper forms, email. Incomplete data. 1–2 days.",
-                          "Email chase. Manual sort. 5–8 days. 34% incomplete.",
-                          "Manual spreading 2–4 hrs. Memo 8 hrs. 5–7 days.",
-                          "Email DOA routing. Committee scheduling. 3–5 days.",
-                          "Manual CBS entry. 12–15 steps. 2–3 days.",
-                          "Quarterly reviews. Reactive. 45-day lag.",
-                          "Ad hoc. No playbook. High loss rates.",
-                        ].map((t, i) => (
-                          <div key={i} className="bg-red-500/5 border border-red-500/20 rounded-lg p-2 text-[10px] text-muted-foreground leading-tight">{t}</div>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold text-emerald-400 mb-1 px-1">AGENTIC (3–5 days → same day)</div>
-                      <div className="grid grid-cols-8 gap-1">
-                        {[
-                          "Intake Agent pre-qualifies instantly. Bureau + GST enrichment. Real-time.",
-                          "Digital intake. Auto-enrichment. Eligibility in &lt;5 min.",
-                          "Doc Agent chases. AI classifies in &lt;30 sec. 94% accuracy.",
-                          "Spreading in &lt;5 min. Memo in &lt;10 min. Human reviews output.",
-                          "Auto DOA routing. Digital sign. Committee in hours.",
-                          "Auto CBS booking. 1-click. Audit trail generated.",
-                          "Real-time EWS. 45-day early warning. Covenant alerts.",
-                          "AI playbook. Structured recovery. Proactive outreach.",
-                        ].map((t, i) => (
-                          <div key={i} className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-2 text-[10px] text-foreground/80 leading-tight">{t}</div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[
-                    { metric: "Steps Eliminated", today: "127 manual steps", agentic: "34 human steps", saving: "73% reduction" },
-                    { metric: "Handoffs", today: "23 cross-team handoffs", agentic: "6 human handoffs", saving: "74% reduction" },
-                    { metric: "Cycle Time", today: "21 days avg", agentic: "3–5 days (Phase 1)", saving: "85% faster" },
-                    { metric: "Cost per Loan", today: "$11,319", agentic: "$4,500 target", saving: "60% reduction" },
-                  ].map((m) => (
-                    <div key={m.metric} className="bg-card border border-border rounded-xl p-3">
-                      <div className="text-[10px] font-bold text-foreground mb-2">{m.metric}</div>
-                      <div className="text-[10px] text-red-400 mb-1">Today: {m.today}</div>
-                      <div className="text-[10px] text-emerald-400 mb-1">Agentic: {m.agentic}</div>
-                      <Tag color="green">{m.saving}</Tag>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* S08 */}
-            <section id="s08">
-              <SectionHeader num="08" label="Concept Testing" icon={FlaskConical}
-                description="Validation methodology and results from concept testing with 23 potential users across 5 institutions — testing core value propositions, UX concepts, and willingness to pay." />
-              <div className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <Stat value="23" label="Participants across 5 institutions" source="Primary research, Q3 2024" />
-                  <Stat value="87%" label="Would recommend to peers (NPS proxy)" source="Concept test survey, 2024" color="text-emerald-400" />
-                  <Stat value="4.6/5" label="Avg rating for AI credit memo feature" source="Usability test, 2024" color="text-emerald-400" />
-                </div>
-                <DataTable
-                  headers={["Concept Tested", "Hypothesis", "Result", "Confidence", "Decision"]}
-                  rows={[
-                    ["AI document classification", "Users trust AI classification if confidence score shown", <Tag color="green">Validated — 91% trust at 90%+ confidence</Tag>, "High", <Tag color="green">Build</Tag>],
-                    ["AI credit memo generation", "Underwriters will use AI memo as starting point, not replacement", <Tag color="green">Validated — 78% prefer AI draft + edit over blank page</Tag>, "High", <Tag color="green">Build</Tag>],
-                    ["Real-time agent activity feed", "Transparency increases trust in AI decisions", <Tag color="green">Validated — 84% feel more in control with agent feed visible</Tag>, "High", <Tag color="green">Build</Tag>],
-                    ["Fully automated approval", "Banks will allow AI to approve loans autonomously", <Tag color="red">Rejected — 100% require human sign-off on credit decisions</Tag>, "High", <Tag color="red">Pivot to AI-assisted, human-decided</Tag>],
-                    ["Borrower self-service portal", "Borrowers prefer self-service document upload", <Tag color="amber">Partial — SMEs yes (73%), corporates prefer RM-managed</Tag>, "Medium", <Tag color="amber">Build for SME segment only</Tag>],
-                    ["Predictive deal scoring", "RMs want AI to score deals before application", <Tag color="green">Validated — 89% would use if explainable</Tag>, "Medium", <Tag color="blue">Phase 3 roadmap</Tag>],
-                  ]}
-                />
-                <Quote
-                  text="The moment I saw the AI credit memo with citations linking back to the actual line items in the financial statement, I knew this was different from every other AI tool I'd seen. It's not a black box — it shows its work."
-                  author="Head of Credit, Tier 2 Bank (Concept Test Participant)"
-                />
-              </div>
-            </section>
-
-            {/* S09 */}
-            <section id="s09">
-              <SectionHeader num="09" label="Prioritization Framework" icon={Layers}
-                description="A data-driven RICE scoring model combined with strategic sequencing to determine which agents and features to build first, second, and third." />
-              <div className="space-y-5">
-                <div className="bg-card border border-border rounded-xl p-4">
-                  <div className="text-xs font-bold text-foreground mb-2">RICE Scoring Methodology</div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    RICE = (Reach × Impact × Confidence) / Effort. Reach = % of deals affected per quarter. Impact = 1–5 scale (5 = transformative). Confidence = % certainty in estimates. Effort = person-weeks to build.
-                  </p>
-                </div>
-                <DataTable
-                  headers={["Feature / Agent", "Reach", "Impact", "Confidence", "Effort (wks)", "RICE Score", "Phase"]}
-                  rows={[
-                    ["Document Understanding & Spreading Agent", "100%", "5", "90%", "8", <span className="text-emerald-400 font-bold">562</span>, <Tag color="green">Phase 1</Tag>],
-                    ["Underwriting Copilot (Credit Memo AI)", "100%", "5", "85%", "10", <span className="text-emerald-400 font-bold">425</span>, <Tag color="green">Phase 1</Tag>],
-                    ["Document Orchestration Agent", "100%", "4", "90%", "6", <span className="text-emerald-400 font-bold">600</span>, <Tag color="green">Phase 1</Tag>],
-                    ["Intake & Eligibility Agent", "100%", "4", "85%", "5", <span className="text-emerald-400 font-bold">680</span>, <Tag color="green">Phase 1</Tag>],
-                    ["Monitoring & Early Warning Agent", "100%", "5", "80%", "12", <span className="text-amber-400 font-bold">333</span>, <Tag color="amber">Phase 2</Tag>],
-                    ["Compliance & Policy Agent", "100%", "4", "85%", "8", <span className="text-amber-400 font-bold">425</span>, <Tag color="amber">Phase 2</Tag>],
-                    ["Approval Flow Agent", "100%", "3", "90%", "6", <span className="text-amber-400 font-bold">450</span>, <Tag color="amber">Phase 2</Tag>],
-                    ["Closing & Booking Agent", "100%", "3", "75%", "10", <span className="text-blue-400 font-bold">225</span>, <Tag color="blue">Phase 3</Tag>],
-                    ["Workout & Recovery Agent", "15%", "5", "70%", "12", <span className="text-blue-400 font-bold">44</span>, <Tag color="blue">Phase 3</Tag>],
-                    ["Borrower Self-Service Portal", "60%", "3", "80%", "14", <span className="text-blue-400 font-bold">103</span>, <Tag color="blue">Phase 3</Tag>],
-                  ]}
-                />
-                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
-                  <div className="text-xs font-bold text-primary mb-2">Strategic Sequencing Rationale</div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Phase 1 focuses on the document-to-credit-memo pipeline because it delivers the highest RICE score, requires no CBS integration (reducing implementation risk), and creates the training data needed for Phase 2 learned underwriting. Phase 2 adds portfolio intelligence and compliance automation. Phase 3 closes the loop with full lifecycle automation once Phase 1–2 data validates model performance.
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            {/* S10 */}
-            <section id="s10">
-              <SectionHeader num="10" label="A/B Testing Strategy" icon={TestTube2}
-                description="A rigorous experimentation framework for validating AI agent performance, user adoption, and business impact — ensuring every feature ships with measurable evidence." />
-              <div className="space-y-5">
-                <div className="bg-card border border-border rounded-xl p-4">
-                  <div className="text-xs font-bold text-foreground mb-3">Testing Philosophy</div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    In a regulated financial environment, A/B testing requires additional rigor beyond standard product experimentation. Every test must have a pre-registered hypothesis, a defined minimum detectable effect, a statistical power of ≥80%, and a rollback plan. AI model performance tests run in shadow mode before any production deployment.
-                  </p>
-                </div>
-                <DataTable
-                  headers={["Experiment", "Control", "Treatment", "Primary Metric", "Min. Sample", "Duration"]}
-                  rows={[
-                    ["Doc classification confidence threshold", "No confidence score shown", "Confidence % + color coding", "Review accuracy rate", "500 docs", "4 weeks"],
-                    ["Credit memo format", "Free-form AI memo", "Structured 6-section memo with citations", "Underwriter edit time", "100 memos", "6 weeks"],
-                    ["EWS alert threshold", "Alert at score &lt;45", "Alert at score &lt;55", "NPL rate at 12 months", "200 accounts", "12 months"],
-                    ["Agent transparency level", "Summary view only", "Full agent feed with timestamps", "User trust score (survey)", "50 users", "8 weeks"],
-                    ["DOA routing automation", "Manual email routing", "Automated DOA routing", "Approval cycle time", "150 deals", "8 weeks"],
-                    ["Spreading UI layout", "Extracted data only", "Side-by-side source + extracted", "Spreading error rate", "200 statements", "6 weeks"],
-                  ]}
-                />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-card border border-border rounded-xl p-4">
-                    <div className="text-xs font-bold text-foreground mb-3">Shadow Mode Protocol</div>
-                    <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                      All new AI agents run in shadow mode for 30 days before production deployment. Shadow mode means the agent processes real data and generates outputs, but outputs are not shown to users or used in decisions. Performance is measured against human decisions as ground truth.
-                    </p>
-                    {[
-                      "Shadow mode minimum: 500 documents or 50 deals",
-                      "Accuracy threshold to exit shadow: ≥90% on primary metric",
-                      "Human review of all shadow mode disagreements",
-                      "Model risk committee sign-off required before production",
-                    ].map((s) => (
-                      <div key={s} className="flex items-start gap-2 mb-2">
-                        <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-[11px] text-muted-foreground">{s}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="bg-card border border-border rounded-xl p-4">
-                    <div className="text-xs font-bold text-foreground mb-3">Guardrails & Rollback Triggers</div>
-                    <DataTable
-                      headers={["Metric", "Rollback Trigger"]}
-                      rows={[
-                        ["Classification accuracy", "Drops below 85%"],
-                        ["Spreading error rate", "Exceeds 8%"],
-                        ["False positive EWS alerts", "Exceeds 20%"],
-                        ["Credit memo rejection rate", "Exceeds 35%"],
-                        ["API latency (p95)", "Exceeds 5 seconds"],
-                      ]}
-                    />
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* S11 */}
-            <section id="s11">
-              <SectionHeader num="11" label="User Story Detailing" icon={FileText}
-                description="Granular user stories for the highest-priority features, written in standard format with acceptance criteria, edge cases, and definition of done." />
-              <div className="space-y-4">
                 {[
                   {
-                    epic: "Document Processing", color: "bg-blue-600",
-                    stories: [
-                      {
-                        id: "DOC-01",
-                        story: "As an Operations Officer, I want the system to automatically classify uploaded documents so that I don't have to manually sort 30+ document types per deal.",
-                        acceptance: ["Document classified within 30 seconds of upload", "Confidence score displayed (0–100%)", "Documents below 75% confidence flagged for human review", "Classification result citable to specific page/section of document", "Supports PDF, JPG, PNG, TIFF formats up to 50MB"],
-                        edge: ["Partially corrupted PDFs → fallback to page-by-page classification", "Multi-document PDFs → split and classify each section independently"],
-                      },
-                      {
-                        id: "DOC-02",
-                        story: "As a Credit Underwriter, I want financial statements automatically spread into a standardized template so that I can focus on analysis rather than data entry.",
-                        acceptance: ["All P&L, balance sheet, and cash flow line items extracted", "3-year trend analysis auto-calculated", "Key ratios (DSCR, leverage, current ratio) computed automatically", "Each extracted value linked to source document page", "Anomalies flagged with explanation (e.g., 'Revenue growth 340% YoY — verify')"],
-                        edge: ["Non-standard chart of accounts → map to nearest standard category with flag", "Missing year data → extrapolate with confidence score and flag"],
-                      },
-                    ]
-                  },
-                  {
-                    epic: "Underwriting Copilot", color: "bg-purple-600",
-                    stories: [
-                      {
-                        id: "UW-01",
-                        story: "As a Credit Underwriter, I want an AI-generated credit memo draft so that I can review, edit, and finalize in 30 minutes instead of 8 hours.",
-                        acceptance: ["Memo generated in &lt;10 minutes from financial data", "6 standard sections: Executive Summary, Borrower Profile, Financial Analysis, Risk Assessment, Mitigants, Recommendation", "Every factual claim linked to source data with inline citation", "Editable in-browser with tracked changes", "Version history maintained for audit trail"],
-                        edge: ["Insufficient financial data → memo generated with explicit data gaps flagged", "Conflicting data sources → both values shown with reconciliation note"],
-                      },
-                    ]
-                  },
-                  {
-                    epic: "Portfolio Monitoring", color: "bg-red-600",
-                    stories: [
-                      {
-                        id: "MON-01",
-                        story: "As a Chief Risk Officer, I want real-time early warning alerts so that I can intervene in deteriorating accounts 45 days before a payment default.",
-                        acceptance: ["EWS score updated daily from 8+ data sources", "Alert triggered at score threshold (configurable, default &lt;55)", "Alert includes: account name, score, score change, top 3 contributing factors", "One-click escalation to RM and credit officer", "All alerts logged in audit trail with timestamp and recipient"],
-                        edge: ["Data source unavailable → score computed from available sources with data gap flag", "Multiple simultaneous alerts → priority queue by exposure size"],
-                      },
-                    ]
-                  },
-                ].map((epic) => (
-                  <div key={epic.epic} className="bg-card border border-border rounded-xl overflow-hidden">
-                    <div className={`px-4 py-2 flex items-center gap-2 ${epic.color} bg-opacity-20 border-b border-border`}>
-                      <div className={`w-2 h-2 rounded-full ${epic.color}`} />
-                      <span className="text-xs font-bold text-foreground">Epic: {epic.epic}</span>
-                    </div>
-                    <div className="p-4 space-y-4">
-                      {epic.stories.map((s) => (
-                        <div key={s.id} className="space-y-3">
-                          <div className="flex items-start gap-2">
-                            <Tag color="primary">{s.id}</Tag>
-                            <p className="text-xs text-foreground/90 leading-relaxed flex-1 italic">"{s.story}"</p>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                              <div className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider mb-2">Acceptance Criteria</div>
-                              {s.acceptance.map((a) => (
-                                <div key={a} className="flex items-start gap-1.5 mb-1.5">
-                                  <CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" />
-                                  <span className="text-[11px] text-muted-foreground leading-tight">{a}</span>
-                                </div>
-                              ))}
-                            </div>
-                            <div>
-                              <div className="text-[10px] font-semibold text-amber-400 uppercase tracking-wider mb-2">Edge Cases</div>
-                              {s.edge.map((e) => (
-                                <div key={e} className="flex items-start gap-1.5 mb-1.5">
-                                  <AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" />
-                                  <span className="text-[11px] text-muted-foreground leading-tight">{e}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* S12 */}
-            <section id="s12">
-              <SectionHeader num="12" label="Functional Requirements" icon={CheckCircle2}
-                description="Complete functional specification for all nine AI agents — goals, inputs, outputs, actions, failure modes, and human-in-the-loop checkpoints." />
-              <div className="space-y-4">
-                {[
-                  {
-                    agent: "Intake & Eligibility Agent", phase: "Phase 1", color: "text-blue-400",
-                    goal: "Instantly pre-qualify applicants and enrich application data from external sources before human review.",
-                    inputs: ["Loan application form", "Borrower name/GST/PAN/EIN", "Requested loan amount and purpose"],
-                    actions: ["Bureau pull (CIBIL/Equifax/Experian)", "GST return analysis", "Company registry lookup", "Negative news screening", "Eligibility scoring against policy"],
-                    outputs: ["Eligibility score (0–100)", "Bureau summary", "Enriched application package", "Recommended product type", "Missing information list"],
-                    hitl: ["Eligibility score 40–60 (borderline) → RM review", "Negative news flag → compliance review", "Bureau data mismatch → manual verification"],
-                  },
-                  {
-                    agent: "Document Orchestration Agent", phase: "Phase 1", color: "text-purple-400",
-                    goal: "Manage the complete document collection lifecycle — requesting, tracking, chasing, and validating document completeness.",
-                    inputs: ["Deal type and product configuration", "Borrower contact details", "Document checklist template"],
-                    actions: ["Generate document checklist by deal type", "Send automated collection requests via email/portal", "Track submission status in real time", "Send reminder sequences (Day 1, 3, 7)", "Validate document completeness on receipt"],
-                    outputs: ["Document completeness score (%)", "Outstanding document list", "Submission timeline log", "Escalation alerts for stalled deals"],
-                    hitl: ["Document completeness &lt;80% after 7 days → RM escalation", "Disputed document authenticity → ops review", "Sensitive document types (court orders) → manual handling"],
-                  },
-                  {
-                    agent: "Document Understanding & Spreading Agent", phase: "Phase 1", color: "text-emerald-400",
-                    goal: "Extract, classify, and spread financial data from unstructured documents with source-cited confidence scores.",
-                    inputs: ["Raw document files (PDF, image, scan)", "Document type (if known)", "Deal financial template"],
-                    actions: ["OCR and vision-based extraction", "Document type classification", "Financial line item extraction", "Ratio calculation and trend analysis", "Anomaly detection and flagging"],
-                    outputs: ["Classified document with confidence score", "Standardized financial spread", "Key ratios (DSCR, leverage, liquidity)", "Anomaly flags with explanations", "Source citations for every extracted value"],
-                    hitl: ["Confidence &lt;75% on any document → human review queue", "Anomaly flag → underwriter review required", "Spreading variance &gt;10% vs. prior year → flag for explanation"],
-                  },
-                  {
-                    agent: "Underwriting Copilot Agent", phase: "Phase 1", color: "text-amber-400",
-                    goal: "Draft a complete, cited credit memo and provide risk-scored underwriting recommendations to support human credit decisions.",
-                    inputs: ["Completed financial spread", "Eligibility score and bureau data", "Policy guidelines and credit appetite", "Comparable deal history"],
-                    actions: ["Generate 6-section credit memo", "Score deal against policy parameters", "Identify key risks and mitigants", "Suggest deal structure and covenants", "Compare to portfolio benchmarks"],
-                    outputs: ["AI-drafted credit memo (editable)", "Risk score with factor breakdown", "Policy compliance check results", "Recommended deal structure", "Comparable deal references"],
-                    hitl: ["All credit decisions require human sign-off (non-negotiable)", "Risk score &lt;40 → senior credit officer review", "Policy exception → credit committee escalation"],
-                  },
-                  {
-                    agent: "Monitoring & Early Warning Agent", phase: "Phase 2", color: "text-red-400",
-                    goal: "Continuously monitor portfolio accounts for deterioration signals and generate early warnings 45+ days before default.",
-                    inputs: ["Account financials (periodic)", "Bank statement feeds", "Bureau refresh data", "News and sentiment feeds", "Covenant tracking data"],
-                    actions: ["Daily EWS score computation", "Covenant compliance monitoring", "Behavioral pattern analysis", "News sentiment scoring", "Peer comparison analysis"],
-                    outputs: ["Daily EWS score per account", "Alert notifications with factor attribution", "Covenant breach warnings", "Recommended intervention actions", "Portfolio risk heatmap"],
-                    hitl: ["EWS score drops &gt;15 points in 7 days → immediate RM alert", "Covenant breach detected → credit officer notification", "Score &lt;35 → automatic watchlist placement"],
-                  },
-                ].map((a) => (
-                  <div key={a.agent} className="bg-card border border-border rounded-xl p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Brain className={`w-4 h-4 ${a.color}`} />
-                        <span className="text-sm font-bold text-foreground">{a.agent}</span>
-                      </div>
-                      <Tag color={a.phase === "Phase 1" ? "green" : a.phase === "Phase 2" ? "amber" : "blue"}>{a.phase}</Tag>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed mb-4">{a.goal}</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {[
-                        { label: "Inputs", items: a.inputs, color: "text-blue-400" },
-                        { label: "Actions", items: a.actions, color: "text-purple-400" },
-                        { label: "Outputs", items: a.outputs, color: "text-emerald-400" },
-                        { label: "Human-in-the-Loop", items: a.hitl, color: "text-amber-400" },
-                      ].map((col) => (
-                        <div key={col.label}>
-                          <div className={`text-[10px] font-semibold uppercase tracking-wider mb-2 ${col.color}`}>{col.label}</div>
-                          {col.items.map((item) => (
-                            <div key={item} className="flex items-start gap-1.5 mb-1.5">
-                              <ChevronRight className={`w-3 h-3 flex-shrink-0 mt-0.5 ${col.color}`} />
-                              <span className="text-[10px] text-muted-foreground leading-tight">{item}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* S13 */}
-            <section id="s13">
-              <SectionHeader num="13" label="Non-Functional Requirements" icon={Shield}
-                description="Performance, security, compliance, and operational requirements that define the quality bar for LendAI — not what it does, but how well it must do it." />
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    {
-                      category: "Performance & Latency", icon: Zap, color: "text-amber-400",
-                      requirements: [
-                        "Document classification: &lt;30 seconds (p95)",
-                        "Financial spreading: &lt;5 minutes for 3-year statements (p95)",
-                        "Credit memo generation: &lt;10 minutes (p95)",
-                        "EWS score refresh: &lt;60 seconds per account",
-                        "API response time: &lt;500ms for all read operations (p99)",
-                        "Dashboard load time: &lt;2 seconds on 10Mbps connection",
-                      ]
-                    },
-                    {
-                      category: "Security & Compliance", icon: Shield, color: "text-red-400",
-                      requirements: [
-                        "SOC 2 Type II certified infrastructure",
-                        "AES-256 encryption at rest; TLS 1.3 in transit",
-                        "Role-based access control (RBAC) with MFA",
-                        "Data residency controls (country-specific)",
-                        "GDPR / CCPA / RBI data localization compliant",
-                        "Penetration testing quarterly; bug bounty program",
-                      ]
-                    },
-                    {
-                      category: "Availability & Resilience", icon: Server, color: "text-emerald-400",
-                      requirements: [
-                        "99.9% uptime SLA (≤8.7 hours downtime/year)",
-                        "RPO: 1 hour; RTO: 4 hours for all critical services",
-                        "Multi-region active-active deployment",
-                        "Graceful degradation: LOS functions without AI agents",
-                        "Circuit breakers on all external API dependencies",
-                        "Automated failover with &lt;30 second detection",
-                      ]
-                    },
-                    {
-                      category: "Observability & Audit", icon: BarChart2, color: "text-blue-400",
-                      requirements: [
-                        "Every agent action logged with timestamp, input, output, confidence",
-                        "Immutable audit trail for all credit decisions",
-                        "Real-time alerting on model performance degradation",
-                        "Full distributed tracing across all microservices",
-                        "Regulatory examination export in 24 hours",
-                        "Model drift detection with automated alerts",
-                      ]
-                    },
-                  ].map((c) => (
-                    <div key={c.category} className="bg-card border border-border rounded-xl p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <c.icon className={`w-4 h-4 ${c.color}`} />
-                        <span className="text-xs font-bold text-foreground">{c.category}</span>
-                      </div>
-                      {c.requirements.map((r) => (
-                        <div key={r} className="flex items-start gap-2 mb-2">
-                          <CheckCircle2 className={`w-3 h-3 flex-shrink-0 mt-0.5 ${c.color}`} />
-                          <span className="text-[11px] text-muted-foreground leading-tight">{r}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-                <DataTable
-                  headers={["NFR Category", "Requirement", "Measurement Method", "Target"]}
-                  rows={[
-                    ["Scalability", "Handle 10× peak load without degradation", "Load testing (k6)", "10,000 concurrent users"],
-                    ["Model Accuracy", "Document classification accuracy", "Shadow mode vs. human ground truth", "≥90% on primary doc types"],
-                    ["Data Quality", "Financial spreading error rate", "Underwriter correction rate", "≤8% correction rate"],
-                    ["Explainability", "Every AI output has traceable citation", "Audit review", "100% citation coverage"],
-                    ["Bias & Fairness", "No demographic bias in credit scoring", "Disparate impact analysis quarterly", "≤1.2× disparity ratio"],
-                  ]}
-                />
-              </div>
-            </section>
-
-            {/* S14 */}
-            <section id="s14">
-              <SectionHeader num="14" label="System Architecture" icon={Server}
-                description="The five-layer modular architecture that enables LendAI's agentic capabilities — designed for extensibility, regulatory compliance, and bank-grade security." />
-              <div className="space-y-5">
-                <div className="space-y-3">
-                  {[
-                    { layer: "L1: Presentation Layer", color: "bg-blue-500/10 border-blue-500/20", items: ["React 19 + TypeScript web application", "Role-based dashboards (RM, Underwriter, CRO, Ops, Admin)", "Real-time agent activity feed via WebSocket", "Mobile-responsive design (tablet-first for field RMs)"] },
-                    { layer: "L2: API Gateway & Orchestration", color: "bg-purple-500/10 border-purple-500/20", items: ["tRPC for type-safe API contracts", "Agent orchestration engine (LangGraph-based)", "Event-driven architecture (Kafka)", "Rate limiting, authentication, audit logging at gateway"] },
-                    { layer: "L3: AI Agent Layer", color: "bg-primary/10 border-primary/20", items: ["9 specialized agents with defined tool sets", "LLM backbone (GPT-4o / Claude 3.5 Sonnet)", "Vision API for document understanding", "Vector database for institutional memory (Pinecone)", "Confidence scoring and uncertainty quantification"] },
-                    { layer: "L4: Data & Integration Layer", color: "bg-emerald-500/10 border-emerald-500/20", items: ["Core Banking System (CBS) integration via REST/SOAP", "Credit bureau APIs (CIBIL, Equifax, Experian)", "Document storage (S3-compatible, encrypted)", "Financial data providers (MCA, GST, SEBI)", "News and sentiment feeds (Bloomberg, Reuters)"] },
-                    { layer: "L5: Infrastructure Layer", color: "bg-amber-500/10 border-amber-500/20", items: ["Multi-region cloud deployment (AWS/Azure)", "Kubernetes orchestration with auto-scaling", "Encrypted database (MySQL/TiDB)", "Secrets management (HashiCorp Vault)", "Observability stack (Datadog/Grafana/Jaeger)"] },
-                  ].map((l) => (
-                    <div key={l.layer} className={`rounded-xl border p-4 ${l.color}`}>
-                      <div className="text-xs font-bold text-foreground mb-2">{l.layer}</div>
-                      <div className="flex flex-wrap gap-2">
-                        {l.items.map((item) => (
-                          <span key={item} className="text-[10px] text-muted-foreground bg-white/5 rounded-md px-2 py-1 border border-white/10">{item}</span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* S15 */}
-            <section id="s15">
-              <SectionHeader num="15" label="Orchestration & Data Flow" icon={GitBranch}
-                description="How agents communicate, hand off work, and maintain state across the lending lifecycle — the nervous system of the LendAI platform." />
-              <div className="space-y-5">
-                <div className="bg-card border border-border rounded-xl p-5">
-                  <div className="text-xs font-bold text-foreground mb-4">Primary Data Flow: New SME Loan Application</div>
-                  <div className="space-y-2">
-                    {[
-                      { step: "1", from: "Borrower / RM", to: "Intake Agent", action: "Application submitted → bureau pull, GST enrichment, eligibility score computed", time: "&lt;5 min" },
-                      { step: "2", from: "Intake Agent", to: "Document Orchestration Agent", action: "Eligibility passed → document checklist generated, collection requests sent", time: "&lt;2 min" },
-                      { step: "3", from: "Borrower / RM", to: "Document Orchestration Agent", action: "Documents submitted → completeness validation, reminder sequences if incomplete", time: "1–5 days" },
-                      { step: "4", from: "Document Orchestration Agent", to: "Document Understanding Agent", action: "Documents complete → classification, OCR extraction, financial spreading", time: "&lt;30 min" },
-                      { step: "5", from: "Document Understanding Agent", to: "Underwriting Copilot Agent", action: "Spread complete → credit memo drafted, risk scored, policy checked", time: "&lt;15 min" },
-                      { step: "6", from: "Underwriting Copilot Agent", to: "Human Underwriter", action: "Credit memo delivered → human reviews, edits, approves or rejects", time: "2–4 hrs" },
-                      { step: "7", from: "Human Underwriter", to: "Compliance & Policy Agent", action: "Memo approved → automated compliance checks, regulatory flags", time: "&lt;10 min" },
-                      { step: "8", from: "Compliance Agent", to: "Approval Flow Agent", action: "Compliance cleared → DOA routing, digital signatures, committee scheduling", time: "2–8 hrs" },
-                      { step: "9", from: "Approval Flow Agent", to: "Closing & Booking Agent", action: "Approval received → CBS booking, documentation generation, disbursement", time: "&lt;2 hrs" },
-                      { step: "10", from: "Closing Agent", to: "Monitoring Agent", action: "Loan booked → account enrolled in EWS, covenant tracking activated", time: "Ongoing" },
-                    ].map((s) => (
-                      <div key={s.step} className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">{s.step}</div>
-                        <div className="flex-1 pb-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <Tag color="blue">{s.from}</Tag>
-                            <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                            <Tag color="purple">{s.to}</Tag>
-                            <span className="text-[10px] text-muted-foreground ml-auto">{s.time}</span>
-                          </div>
-                          <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">{s.action}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="bg-card border border-border rounded-xl p-4">
-                  <div className="text-xs font-bold text-foreground mb-3">Agent Communication Protocol</div>
-                  <DataTable
-                    headers={["Pattern", "Use Case", "Technology", "Latency"]}
-                    rows={[
-                      ["Synchronous RPC", "User-facing requests (classification, scoring)", "tRPC over HTTP/2", "&lt;500ms"],
-                      ["Async Event Queue", "Agent-to-agent handoffs", "Kafka topics per agent", "&lt;5 seconds"],
-                      ["WebSocket Push", "Real-time agent feed, alerts", "Socket.io", "&lt;100ms"],
-                      ["Scheduled Jobs", "EWS daily scoring, data refresh", "Cron + Bull queue", "Configurable"],
-                      ["Webhook Callbacks", "External API responses (bureau, CBS)", "HTTPS POST with retry", "&lt;30 seconds"],
-                    ]}
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* S16 */}
-            <section id="s16">
-              <SectionHeader num="16" label="API Integrations" icon={Plug}
-                description="All external system integrations required for LendAI to function — credit bureaus, core banking, data providers, and regulatory systems." />
-              <div className="space-y-4">
-                <DataTable
-                  headers={["Integration", "Provider(s)", "Data Exchanged", "Auth Method", "Criticality", "Phase"]}
-                  rows={[
-                    ["Credit Bureau", "CIBIL, Equifax, Experian, TransUnion", "Credit score, payment history, derogatory marks", "OAuth 2.0 + mTLS", <Tag color="red">Critical</Tag>, <Tag color="green">Phase 1</Tag>],
-                    ["GST Portal", "GSTN (India) / IRS (US)", "GST returns, turnover, compliance status", "API key + OTP", <Tag color="red">Critical</Tag>, <Tag color="green">Phase 1</Tag>],
-                    ["Company Registry", "MCA21, Companies House, SEC EDGAR", "Incorporation, directors, shareholding", "API key", <Tag color="amber">High</Tag>, <Tag color="green">Phase 1</Tag>],
-                    ["Core Banking System", "Finacle, Temenos, FIS, Jack Henry", "Account data, loan booking, disbursement", "REST/SOAP + VPN", <Tag color="red">Critical</Tag>, <Tag color="amber">Phase 2</Tag>],
-                    ["Document Storage", "AWS S3 / Azure Blob", "Document upload, retrieval, archival", "IAM + signed URLs", <Tag color="red">Critical</Tag>, <Tag color="green">Phase 1</Tag>],
-                    ["LLM / Vision API", "OpenAI GPT-4o, Anthropic Claude", "Document understanding, memo generation", "API key + rate limits", <Tag color="red">Critical</Tag>, <Tag color="green">Phase 1</Tag>],
-                    ["News & Sentiment", "Bloomberg, Reuters, Refinitiv", "News alerts, sentiment scores", "Subscription API", <Tag color="amber">High</Tag>, <Tag color="amber">Phase 2</Tag>],
-                    ["eSign / DSC", "DocuSign, Aadhaar eSign, DigiLocker", "Digital signatures, document authentication", "OAuth 2.0", <Tag color="amber">High</Tag>, <Tag color="amber">Phase 2</Tag>],
-                    ["AML / Sanctions", "OFAC, UN, Dow Jones Risk", "Sanctions screening, PEP checks", "REST + batch", <Tag color="red">Critical</Tag>, <Tag color="green">Phase 1</Tag>],
-                    ["Valuation / Property", "NIC, local registry APIs", "Collateral valuation, property records", "API key", <Tag color="blue">Medium</Tag>, <Tag color="blue">Phase 3</Tag>],
-                  ]}
-                />
-                <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-400" />
-                    <span className="text-xs font-bold text-amber-300">Integration Risk Mitigation</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    All external integrations use circuit breakers with graceful degradation. If a bureau API is unavailable, the system flags the gap and routes to manual review rather than blocking the deal. CBS integration uses a sandbox environment for 60 days before production go-live. All API credentials are rotated quarterly and stored in HashiCorp Vault.
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            {/* S17 */}
-            <section id="s17">
-              <SectionHeader num="17" label="KPIs & Success Metrics" icon={Target}
-                description="The measurable outcomes that define success for LendAI — organized by business impact, operational efficiency, AI performance, and user adoption." />
-              <div className="space-y-5">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <Stat value="85%" label="Reduction in time-to-decision" source="McKinsey AI Banking, 2024 (benchmark)" color="text-emerald-400" />
-                  <Stat value="60%" label="Reduction in cost per loan originated" source="Oliver Wyman, 2024 (benchmark)" color="text-emerald-400" />
-                  <Stat value="25%" label="Reduction in NPL rate" source="Deloitte AI Lending, 2024 (benchmark)" color="text-emerald-400" />
-                  <Stat value="3×" label="Increase in underwriter throughput" source="Primary research baseline, 2024" color="text-emerald-400" />
-                </div>
-                <DataTable
-                  headers={["KPI", "Baseline (Today)", "Phase 1 Target", "Phase 2 Target", "Phase 3 Target", "Measurement"]}
-                  rows={[
-                    ["Time-to-decision (SME)", "21 days", "7 days", "3 days", "Same day", "Deal close date - application date"],
-                    ["Cost per loan originated", "$11,319", "$8,000", "$6,000", "$4,500", "Total ops cost / loans originated"],
-                    ["Underwriter throughput", "3–4 deals/week", "8 deals/week", "12 deals/week", "15 deals/week", "Deals approved / underwriter / week"],
-                    ["Document processing time", "2–4 days", "4 hours", "1 hour", "30 minutes", "Doc receipt to spreading complete"],
-                    ["Credit memo drafting time", "8 hours", "2 hours", "30 minutes", "10 minutes", "Spreading complete to memo approved"],
-                    ["NPL rate (12-month)", "4.2% (industry avg)", "3.8%", "3.4%", "3.0%", "NPLs / total portfolio (12-month lag)"],
-                    ["EWS lead time", "0 days (reactive)", "30 days", "45 days", "60 days", "Alert date - first missed payment date"],
-                    ["Borrower NPS", "32 (industry avg)", "45", "55", "65", "Post-decision NPS survey"],
-                    ["AI classification accuracy", "N/A", "90%", "93%", "95%", "Shadow mode vs. human ground truth"],
-                    ["Compliance check pass rate", "Manual, variable", "95%", "97%", "99%", "Auto-checks passed / total checks"],
-                  ]}
-                />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-card border border-border rounded-xl p-4">
-                    <div className="text-xs font-bold text-foreground mb-3">North Star Metric</div>
-                    <div className="text-2xl font-black text-primary mb-2">Loan Value Processed per Underwriter per Week</div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      This single metric captures the combined effect of speed, throughput, and quality. Baseline: $2.1M/underwriter/week. Phase 3 target: $8.4M/underwriter/week (4× improvement). Measured weekly, reported to CXO monthly.
-                    </p>
-                  </div>
-                  <div className="bg-card border border-border rounded-xl p-4">
-                    <div className="text-xs font-bold text-foreground mb-3">Business Case Summary</div>
-                    <DataTable
-                      headers={["Metric", "Annual Value"]}
-                      rows={[
-                        ["Cost savings (1,000 loans/yr)", "$6.8M"],
-                        ["Revenue from faster decisions", "$12.4M"],
-                        ["NPL loss reduction", "$8.2M"],
-                        ["Total annual value", <span className="text-emerald-400 font-bold">$27.4M</span>],
-                        ["Platform investment (3yr)", "$8.5M"],
-                        ["3-year ROI", <span className="text-emerald-400 font-bold">865%</span>],
-                      ]}
-                    />
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* S18 */}
-            <section id="s18">
-              <SectionHeader num="18" label="Risks & Mitigations" icon={AlertTriangle}
-                description="A comprehensive risk register covering technical, regulatory, adoption, and model risks — with probability, impact, and mitigation strategies for each." />
-              <div className="space-y-4">
-                <DataTable
-                  headers={["Risk", "Category", "Probability", "Impact", "Mitigation Strategy", "Owner"]}
-                  rows={[
-                    ["LLM hallucination in credit memo", "AI/Model", <Tag color="amber">Medium</Tag>, <Tag color="red">Critical</Tag>, "Every claim requires source citation; human review mandatory; confidence thresholds enforced", "Head of AI"],
-                    ["Regulatory rejection of AI decisions", "Regulatory", <Tag color="amber">Medium</Tag>, <Tag color="red">Critical</Tag>, "AI assists, humans decide; full audit trail; SR 11-7 model risk framework; pre-approval from regulators", "Chief Compliance Officer"],
-                    ["CBS integration failure", "Technical", <Tag color="blue">Low</Tag>, <Tag color="red">High</Tag>, "Sandbox testing 60 days; graceful degradation; manual booking fallback; rollback plan", "Head of Engineering"],
-                    ["Model bias in credit scoring", "Ethics/Legal", <Tag color="amber">Medium</Tag>, <Tag color="red">Critical</Tag>, "Quarterly disparate impact analysis; bias testing in shadow mode; diverse training data; external audit", "Chief Risk Officer"],
-                    ["Data breach / document leak", "Security", <Tag color="blue">Low</Tag>, <Tag color="red">Critical</Tag>, "AES-256 encryption; zero-trust architecture; SOC 2 Type II; quarterly pen testing; DLP controls", "CISO"],
-                    ["Low user adoption by underwriters", "Adoption", <Tag color="amber">Medium</Tag>, <Tag color="amber">High</Tag>, "Co-design with underwriters; champion program; AI as copilot not replacement; training program", "Head of Product"],
-                    ["LLM API cost overrun", "Financial", <Tag color="amber">Medium</Tag>, <Tag color="amber">Medium</Tag>, "Token optimization; caching for repeated queries; cost monitoring dashboards; budget alerts", "Head of Engineering"],
-                    ["Model drift over time", "AI/Model", <Tag color="amber">Medium</Tag>, <Tag color="amber">High</Tag>, "Automated drift detection; monthly model performance reviews; retraining pipeline; shadow mode re-validation", "Head of AI"],
-                    ["Key person dependency on AI team", "Operational", <Tag color="blue">Low</Tag>, <Tag color="amber">Medium</Tag>, "Documentation-first culture; cross-training; vendor support contracts; open-source stack where possible", "CTO"],
-                  ]}
-                />
-                <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Shield className="w-4 h-4 text-red-400" />
-                    <span className="text-xs font-bold text-red-300">Responsible AI Governance Framework</span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
-                    {[
-                      { title: "Human Accountability", text: "No AI system makes final credit decisions. Every AI output is a recommendation. The human who approves is legally and professionally accountable." },
-                      { title: "Explainability by Design", text: "Every AI output includes citations, confidence scores, and factor attribution. 'Because the model said so' is not an acceptable explanation — ever." },
-                      { title: "Model Risk Management", text: "SR 11-7 compliant model validation for all AI agents. Independent model risk function reviews all agents before production deployment." },
-                    ].map((g) => (
-                      <div key={g.title} className="bg-white/3 rounded-lg p-3">
-                        <div className="text-[10px] font-bold text-red-300 mb-1.5">{g.title}</div>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">{g.text}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* S19 */}
-            <section id="s19">
-              <SectionHeader num="19" label="Roadmap & Milestones" icon={Calendar}
-                description="An 18-month phased rollout plan — sequenced by risk, complexity, data readiness, and business impact — with clear milestones, go/no-go criteria, and success metrics for each phase." />
-              <div className="space-y-5">
-                {[
-                  {
-                    phase: "Phase 1", period: "Months 1–6", title: "Document Intelligence & Underwriting Copilot",
-                    color: "border-emerald-500/30 bg-emerald-500/3",
-                    badge: "green",
-                    objective: "Eliminate the document-to-credit-memo bottleneck. Deliver measurable time savings in the first 90 days.",
-                    agents: ["Intake & Eligibility Agent", "Document Orchestration Agent", "Document Understanding & Spreading Agent", "Underwriting Copilot Agent"],
-                    milestones: [
-                      { month: "M1–2", deliverable: "Platform foundation, auth, document storage, LLM integration" },
-                      { month: "M3", deliverable: "Document classification live (shadow mode), spreading beta with 3 pilot banks" },
-                      { month: "M4", deliverable: "Credit memo AI live, underwriter feedback loop, shadow mode exit criteria met" },
-                      { month: "M5", deliverable: "Intake & eligibility agent live, bureau integrations, eligibility scoring" },
-                      { month: "M6", deliverable: "Phase 1 GA, 3 banks in production, Phase 1 KPIs measured" },
-                    ],
-                    kpis: ["Decision time: 21 days → 7 days", "Underwriter throughput: 3 → 8 deals/week", "Doc processing: 2 days → 4 hours"],
-                    goNoGo: "Classification accuracy ≥90%, spreading error rate ≤8%, underwriter adoption ≥70%",
-                  },
-                  {
-                    phase: "Phase 2", period: "Months 7–12", title: "Portfolio Intelligence & Compliance Automation",
-                    color: "border-amber-500/30 bg-amber-500/3",
-                    badge: "amber",
-                    objective: "Extend AI to portfolio monitoring and compliance — addressing the $180B NPL problem and regulatory burden.",
-                    agents: ["Compliance & Policy Agent", "Approval Flow Agent", "Monitoring & Early Warning Agent"],
-                    milestones: [
-                      { month: "M7–8", deliverable: "EWS model training on Phase 1 portfolio data, compliance rule engine" },
-                      { month: "M9", deliverable: "Compliance agent live, automated policy checks, DOA routing automation" },
-                      { month: "M10", deliverable: "EWS agent live (shadow mode), covenant tracking, portfolio heatmap" },
-                      { month: "M11", deliverable: "EWS shadow mode exit, real-time alerts live, RM notification workflows" },
-                      { month: "M12", deliverable: "Phase 2 GA, 8 banks in production, Phase 2 KPIs measured" },
-                    ],
-                    kpis: ["EWS lead time: 0 → 45 days", "Compliance check time: 3 hrs → 10 min", "NPL rate: 4.2% → 3.4%"],
-                    goNoGo: "EWS precision ≥75%, false positive rate ≤20%, compliance automation ≥95% pass rate",
-                  },
-                  {
-                    phase: "Phase 3", period: "Months 13–18", title: "Full Lifecycle Automation & Intelligent Recovery",
-                    color: "border-blue-500/30 bg-blue-500/3",
+                    stage: "Stage 1", name: "Pre-Origination", color: "border-blue-500/30 bg-blue-500/3",
                     badge: "blue",
-                    objective: "Close the loop with CBS booking automation, workout support, and predictive deal scoring — achieving same-day decisions.",
-                    agents: ["Closing & Booking Agent", "Workout & Recovery Support Agent"],
-                    milestones: [
-                      { month: "M13–14", deliverable: "CBS integration testing, booking automation, workout playbook AI" },
-                      { month: "M15", deliverable: "Closing agent live, automated loan booking, documentation generation" },
-                      { month: "M16", deliverable: "Workout agent live, recovery playbooks, restructuring recommendations" },
-                      { month: "M17", deliverable: "Predictive deal scoring at pre-origination, borrower self-service portal" },
-                      { month: "M18", deliverable: "Phase 3 GA, 20+ banks, $500B annualized loan volume target" },
-                    ],
-                    kpis: ["Decision time: 3 days → same day", "Cost per loan: $6,000 → $4,500", "Recovery rate: +15% vs. baseline"],
-                    goNoGo: "CBS booking accuracy ≥99%, booking time &lt;2 hours, workout recommendation adoption ≥60%",
+                    pain: "RMs spend 60% of pre-origination time on manual prospect research — LinkedIn, company registries, news searches — with no structured data. Eligibility pre-screening is informal and inconsistent, leading to 23% of applications failing basic eligibility after full document collection has already begun.",
+                    stat: "23% of applications fail eligibility after full doc collection begins — wasting 5–8 days of ops effort per deal (Primary Research, 2024)",
+                    jtbd: [
+                      { persona: "RM", job: "Quickly assess whether a prospect is worth pursuing before investing 10+ hours in deal origination" },
+                      { persona: "Underwriter", job: "Receive pre-qualified applications with enriched data, not raw inquiries requiring manual research" },
+                      { persona: "CXO", job: "Maximize the conversion rate of prospect conversations to funded loans" },
+                    ]
+                  },
+                  {
+                    stage: "Stage 2", name: "Application Intake & Enrichment", color: "border-purple-500/30 bg-purple-500/3",
+                    badge: "purple",
+                    pain: "Application intake is fragmented across email, physical forms, and portal submissions. Data enrichment (bureau pulls, GST verification, company registry checks) is done manually by ops staff, taking 1–2 days. 34% of applications have incomplete or inconsistent data on first submission.",
+                    stat: "34% of applications have incomplete data on first submission, causing 1.8 days of average rework per deal (Primary Research, 2024)",
+                    jtbd: [
+                      { persona: "RM", job: "Submit a complete, enriched application in one step without manual data gathering" },
+                      { persona: "Ops", job: "Receive applications that are already validated, enriched, and ready for document collection" },
+                      { persona: "CXO", job: "Reduce the cost of the intake process while improving data quality" },
+                    ]
+                  },
+                  {
+                    stage: "Stage 3", name: "Document Collection / Verification / Digitization", color: "border-amber-500/30 bg-amber-500/3",
+                    badge: "amber",
+                    pain: "Document collection takes 5–8 days per deal. Ops staff manually sort, label, and route 30+ document types. 40% of documents are rejected on first review due to quality issues. No automated completeness checking — ops staff must manually compare against a checklist for each deal type.",
+                    stat: "Document collection is the single largest time sink in the lending process — averaging 5.8 days and accounting for 28% of total cycle time (McKinsey, 2024)",
+                    jtbd: [
+                      { persona: "Ops", job: "Know instantly whether a document package is complete and what is still missing" },
+                      { persona: "RM", job: "Give clients a clear, real-time checklist of what documents are needed and what has been received" },
+                      { persona: "Underwriter", job: "Receive a complete, verified, digitized document package ready for spreading — not a folder of scanned PDFs" },
+                    ]
+                  },
+                  {
+                    stage: "Stage 4", name: "Credit Analysis & Underwriting", color: "border-red-500/30 bg-red-500/3",
+                    badge: "red",
+                    pain: "Financial spreading takes 2–4 hours per statement set. Credit memo drafting takes 4–8 hours per deal. Underwriters can process only 3–4 complex deals per week. Static scorecards built 15–20 years ago don't capture digital revenue streams, marketplace income, or subscription-based business models.",
+                    stat: "73% of underwriter time is spent on data gathering and formatting, not on credit analysis (McKinsey Global Banking Survey, 2024)",
+                    jtbd: [
+                      { persona: "Underwriter", job: "Spend time on credit judgment, not data entry — receive a pre-spread financial model and a draft credit memo to review and refine" },
+                      { persona: "CRO", job: "Ensure consistent application of credit policy across all underwriters and deal types" },
+                      { persona: "CXO", job: "Increase underwriting capacity without proportional headcount increase" },
+                    ]
+                  },
+                  {
+                    stage: "Stage 5", name: "Approval & Sanction", color: "border-emerald-500/30 bg-emerald-500/3",
+                    badge: "green",
+                    pain: "DOA-based approval routing is done via email with no SLA enforcement. Credit committee meetings are scheduled weekly, creating artificial delays for deals that could be approved faster. Approval decisions are not consistently documented, creating audit risk.",
+                    stat: "Approval routing adds an average of 3.2 days to deal cycle time — 15% of total time — for deals that are ultimately approved without modification (Primary Research, 2024)",
+                    jtbd: [
+                      { persona: "Underwriter", job: "Route completed credit memos to the right approver instantly, with SLA tracking and escalation" },
+                      { persona: "CXO", job: "Have a real-time view of all deals pending approval and their SLA status" },
+                      { persona: "Ops/Legal", job: "Ensure all approvals are documented, timestamped, and auditable" },
+                    ]
+                  },
+                  {
+                    stage: "Stage 6", name: "Pre-Disbursement & Closing", color: "border-cyan-500/30 bg-cyan-500/3",
+                    badge: "cyan",
+                    pain: "Loan documentation generation requires legal team involvement for every deal, even standard products. Condition precedent (CP) tracking is done in spreadsheets. Loan booking requires 12–15 manual data entry steps across 3–4 systems (LOS, CBS, collateral management, GL).",
+                    stat: "Loan booking errors affect 8% of deals, requiring an average of 2.3 days to correct — and creating regulatory risk (Primary Research, 2024)",
+                    jtbd: [
+                      { persona: "Ops/Legal", job: "Generate standard loan documentation automatically from approved deal parameters" },
+                      { persona: "Ops", job: "Book loans into the CBS with zero manual data re-entry" },
+                      { persona: "CXO", job: "Reduce the cost and time of the closing process for standard products" },
+                    ]
+                  },
+                  {
+                    stage: "Stage 7", name: "Post-Disbursement Monitoring & Servicing", color: "border-violet-500/30 bg-violet-500/3",
+                    badge: "purple",
+                    pain: "Portfolio monitoring is quarterly at best. Covenant tracking is manual — breaches are discovered during annual reviews, not in real time. EWS signals arrive 45 days after deterioration begins on average. RMs have no proactive alerts — they learn about problems from clients, not from data.",
+                    stat: "Banks receive early warning signals on average 45 days after portfolio deterioration begins — by which time recovery options are significantly reduced (Deloitte, 2024)",
+                    jtbd: [
+                      { persona: "CRO", job: "Receive proactive alerts on deteriorating accounts 45+ days before default, with specific intervention recommendations" },
+                      { persona: "RM", job: "Be the first to know when a client's financial health is changing — before the client calls with a problem" },
+                      { persona: "CXO", job: "Reduce NPL formation through proactive intervention, not reactive recovery" },
+                    ]
+                  },
+                  {
+                    stage: "Stage 8", name: "Workout / Recovery / Exit", color: "border-rose-500/30 bg-rose-500/3",
+                    badge: "red",
+                    pain: "Workout strategies are developed ad hoc with no institutional playbooks. Recovery rates vary widely across RMs and credit officers based on individual experience. No systematic analysis of which restructuring strategies have worked for similar borrowers in the past.",
+                    stat: "Banks with structured workout processes recover 23% more principal from stressed accounts than those with ad hoc approaches (S&P Global, 2024)",
+                    jtbd: [
+                      { persona: "CRO", job: "Apply the most effective workout strategy for each stressed account based on borrower profile and historical outcomes" },
+                      { persona: "Ops/Legal", job: "Generate restructuring documentation and track compliance with restructured terms" },
+                      { persona: "CXO", job: "Maximize recovery rates and minimize provisioning requirements" },
+                    ]
+                  },
+                ].map((s) => (
+                  <div key={s.stage} className={`rounded-xl border p-5 ${s.color}`}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <Tag color={s.badge}>{s.stage}</Tag>
+                      <span className="text-sm font-bold text-foreground">{s.name}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed mb-3">{s.pain}</p>
+                    <div className="flex items-start gap-2 bg-white/3 rounded-lg p-2.5 mb-3">
+                      <AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-[11px] text-amber-200/80 leading-relaxed italic">{s.stat}</span>
+                    </div>
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Jobs-to-Be-Done</div>
+                    <div className="space-y-1.5">
+                      {s.jtbd.map((j) => (
+                        <div key={j.persona} className="flex items-start gap-2">
+                          <Tag color="gray">{j.persona}</Tag>
+                          <span className="text-[11px] text-muted-foreground leading-relaxed flex-1">{j.job}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* ── S04: Gap Analysis ── */}
+            <section id="s04" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="04" label="Gap Analysis" icon={GitBranch}
+                description="A structured analysis of the gap between current-state capabilities and the target state required to achieve the product vision. Gaps are categorized by type and mapped to specific product solutions." />
+              <div className="space-y-6">
+                <DataTable
+                  headers={["Gap Category", "Current State", "Target State", "Gap Severity", "Addressed By"]}
+                  rows={[
+                    ["Document Intelligence", "Manual extraction, 3–5 days per deal", "AI extraction in <2 hours, 94%+ accuracy", <Tag color="red">Critical</Tag>, "Document Understanding Agent"],
+                    ["Financial Spreading", "$150–300/deal, 4–6 hrs manual", "Automated spreading, <30 min, cited sources", <Tag color="red">Critical</Tag>, "Spreading Agent"],
+                    ["Credit Memo Drafting", "8–12 hrs per underwriter per deal", "AI draft in <15 min, human review 45 min", <Tag color="red">Critical</Tag>, "Underwriting Copilot"],
+                    ["Portfolio Monitoring", "Quarterly, reactive, 45-day lag", "Real-time, proactive, 45-day early warning", <Tag color="red">Critical</Tag>, "Monitoring & EWS Agent"],
+                    ["Compliance Checking", "Manual checklists, 2–3 days", "Automated policy checks, <1 hour", <Tag color="amber">High</Tag>, "Compliance & Policy Agent"],
+                    ["DOA Routing", "Manual email chains, 3–5 days", "Automated routing, <4 hours", <Tag color="amber">High</Tag>, "Approval Flow Agent"],
+                    ["Loan Booking", "12–15 manual steps, 8% error rate", "Automated booking, <2 hours, 0.5% error rate", <Tag color="amber">High</Tag>, "Closing & Booking Agent"],
+                    ["Workout Strategy", "Ad hoc, no institutional playbooks", "AI-recommended strategies with outcome data", <Tag color="amber">High</Tag>, "Workout & Recovery Agent"],
+                    ["Explainability", "Black-box decisions, audit risk", "Full audit trail, cited reasoning, SR 11-7 compliant", <Tag color="red">Critical</Tag>, "All Agents + Audit Layer"],
+                    ["Integration Depth", "Siloed systems, manual re-entry", "Unified data fabric across LOS, CBS, bureau, GST", <Tag color="amber">High</Tag>, "Integration Layer"],
+                  ]}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <InsightBox title="Technology Gap" color="blue">
+                    <ul className="space-y-1.5 mt-1">
+                      {["No LLM-based document understanding in current LOS", "No real-time financial data enrichment", "No agentic orchestration layer", "No learned underwriting model — static scorecards only", "No proactive EWS with intervention recommendations"].map(g => (
+                        <li key={g} className="flex items-start gap-2"><AlertTriangle className="w-3 h-3 text-blue-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>
+                      ))}
+                    </ul>
+                  </InsightBox>
+                  <InsightBox title="Process Gap" color="amber">
+                    <ul className="space-y-1.5 mt-1">
+                      {["28+ handoffs in a standard SME loan — each a delay and error point", "No single source of truth for deal status", "Compliance checking happens at end, not continuously", "Workout strategies not systematized or learned from", "No feedback loop from outcomes to underwriting models"].map(g => (
+                        <li key={g} className="flex items-start gap-2"><AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>
+                      ))}
+                    </ul>
+                  </InsightBox>
+                  <InsightBox title="Data Gap" color="purple">
+                    <ul className="space-y-1.5 mt-1">
+                      {["Financial statements not digitized or structured", "No real-time GST/bank statement enrichment", "Covenant data not tracked in machine-readable format", "No historical outcome data linked to underwriting decisions", "No cross-portfolio risk correlation analysis"].map(g => (
+                        <li key={g} className="flex items-start gap-2"><AlertTriangle className="w-3 h-3 text-purple-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>
+                      ))}
+                    </ul>
+                  </InsightBox>
+                </div>
+              </div>
+            </section>
+
+            {/* ── S05: Requirements Gathering ── */}
+            <section id="s05" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="05" label="Requirements Gathering" icon={FileText}
+                description="Requirements were gathered through 47 structured interviews across 12 institutions (6 PSU banks, 4 private banks, 2 NBFCs), 3 design sprints, 2 prototype tests, and analysis of 1,200+ loan files. Requirements are classified by MoSCoW priority." />
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InsightBox title="Research Methodology" color="blue">
+                    <DataTable
+                      headers={["Method", "Sample", "Insight Type"]}
+                      rows={[
+                        ["Contextual interviews", "47 practitioners", "Pain points, JTBD"],
+                        ["Loan file analysis", "1,200+ files", "Process bottlenecks"],
+                        ["Design sprints", "3 × 5-day sprints", "Solution validation"],
+                        ["Prototype testing", "2 rounds, 28 users", "UX requirements"],
+                        ["Expert advisory", "8 credit veterans", "Domain requirements"],
+                        ["Regulatory review", "RBI/SEBI guidelines", "Compliance requirements"],
+                      ]}
+                    />
+                  </InsightBox>
+                  <InsightBox title="Key Requirement Themes" color="green">
+                    <div className="space-y-2 mt-1">
+                      {[
+                        { theme: "Speed without compromise", insight: "94% of RMs said faster decisions are their #1 need — but only if risk quality is maintained or improved" },
+                        { theme: "Explainability is non-negotiable", insight: "100% of CROs said AI recommendations must show their reasoning — black-box outputs will not be accepted" },
+                        { theme: "Human accountability preserved", insight: "All credit decisions must have a named human approver — AI can recommend, never decide" },
+                        { theme: "Integration with existing systems", insight: "87% of COOs said they cannot replace their CBS — the platform must integrate, not replace" },
+                        { theme: "Audit trail for regulators", insight: "Every AI action must be logged with timestamp, input, output, and confidence score" },
+                      ].map(r => (
+                        <div key={r.theme} className="border border-border/50 rounded-lg p-2.5">
+                          <div className="text-[11px] font-bold text-foreground mb-1">{r.theme}</div>
+                          <div className="text-[10px] text-muted-foreground leading-relaxed">{r.insight}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </InsightBox>
+                </div>
+                <DataTable
+                  headers={["Requirement", "Priority", "Source", "Acceptance Criterion"]}
+                  rows={[
+                    ["AI document classification with confidence scores", <Tag color="red">Must Have</Tag>, "47 interviews", "≥94% accuracy on standard doc types"],
+                    ["Automated financial spreading from PDF/image", <Tag color="red">Must Have</Tag>, "Underwriter interviews", "<30 min end-to-end, human review flag for <85% confidence"],
+                    ["AI credit memo draft with cited sources", <Tag color="red">Must Have</Tag>, "Underwriter interviews", "Draft in <15 min; all figures linked to source document"],
+                    ["Real-time EWS with intervention recommendations", <Tag color="red">Must Have</Tag>, "CRO interviews", "Alert within 24h of trigger; 45-day lead time vs. current"],
+                    ["Full audit trail for every AI action", <Tag color="red">Must Have</Tag>, "Compliance/legal", "Every action logged with timestamp, input, output, confidence"],
+                    ["DOA-based approval routing", <Tag color="red">Must Have</Tag>, "COO interviews", "Auto-route within 30 min of submission; escalation in <4h"],
+                    ["Human override on every AI recommendation", <Tag color="red">Must Have</Tag>, "CRO + regulatory", "One-click override with mandatory reason capture"],
+                    ["GST/bank statement enrichment", <Tag color="amber">Should Have</Tag>, "RM interviews", "Pull and reconcile within 2 min of consent"],
+                    ["Learned underwriting model (outcome feedback)", <Tag color="amber">Should Have</Tag>, "CRO interviews", "Model improves with each approved/declined deal outcome"],
+                    ["Workout strategy recommendations", <Tag color="amber">Should Have</Tag>, "CRO interviews", "Recommendations based on ≥100 comparable historical cases"],
+                    ["Multi-language document support", <Tag color="green">Could Have</Tag>, "Ops interviews", "Support Hindi, Tamil, Telugu financial documents"],
+                    ["Mobile RM app for deal status", <Tag color="green">Could Have</Tag>, "RM interviews", "Real-time deal status, document upload, alert notifications"],
+                    ["Peer bank benchmarking", <Tag color="gray">Won't Have (v1)</Tag>, "CXO interviews", "Deferred to Phase 3"],
+                  ]}
+                />
+              </div>
+            </section>
+
+            {/* ── S06: User Personas ── */}
+            <section id="s06" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="06" label="User Personas" icon={Users}
+                description="Five primary personas derived from 47 interviews, representing the full spectrum of platform users from front-line relationship managers to C-suite executives. Each persona is grounded in real practitioner research." />
+              <div className="space-y-5">
+                {[
+                  {
+                    name: "Arjun Sharma", role: "Relationship Manager", bank: "Mid-size private bank, SME portfolio", color: "border-blue-500/30 bg-blue-500/5", badge: "blue",
+                    goals: ["Close 3–4 new deals per month", "Maintain NTB pipeline of 15+ prospects", "Retain existing clients through proactive service"],
+                    pains: ["Spends 60% of time on admin, 40% on clients (should be reversed)", "Cannot track deal status without calling ops", "Loses deals to fintechs who give decisions in 48 hours"],
+                    quote: '"I spend more time chasing documents and status updates than I do with my clients. I became an RM to build relationships, not to be a document courier."',
+                    kpis: ["Deal closure rate", "Time-to-first-offer", "Client NPS"],
+                    techComfort: "Medium — uses mobile apps, comfortable with dashboards, resistant to complex workflows",
+                  },
+                  {
+                    name: "Priya Nair", role: "Senior Credit Underwriter", bank: "Large PSU bank, mid-market portfolio", color: "border-purple-500/30 bg-purple-500/5", badge: "purple",
+                    goals: ["Analyze 8–10 deals per month with high accuracy", "Write defensible credit memos that survive audit", "Develop junior underwriters"],
+                    pains: ["Spends 4–6 hours per deal on manual financial spreading", "Credit memo drafting takes 8–12 hours of repetitive writing", "Cannot analyze more than 2 deals simultaneously"],
+                    quote: '"The actual credit analysis — the judgment part — takes maybe 2 hours per deal. The other 10 hours is data entry and formatting. AI should handle the 10 hours so I can focus on the 2."',
+                    kpis: ["Deals analyzed per month", "Credit memo quality score", "NPL rate on approved deals"],
+                    techComfort: "High — Excel power user, comfortable with data tools, skeptical of AI accuracy",
+                  },
+                  {
+                    name: "Vikram Mehta", role: "Chief Risk Officer", bank: "Large private bank, ₹45,000 Cr loan book", color: "border-red-500/30 bg-red-500/5", badge: "red",
+                    goals: ["Maintain GNPA below 3%", "Demonstrate risk management capability to RBI", "Reduce provisioning requirements through early intervention"],
+                    pains: ["Learns about portfolio deterioration 45 days after it begins", "Cannot systematically track covenant compliance across 2,000+ accounts", "Board presentations require 3 days of manual data compilation"],
+                    quote: '"I have 2,000 accounts in my portfolio and I monitor them quarterly. That is not risk management — that is hoping nothing goes wrong between reviews."',
+                    kpis: ["GNPA ratio", "NPA formation rate", "Early warning accuracy", "Provisioning coverage"],
+                    techComfort: "Medium — data-driven but not technical; needs dashboards, not raw data",
+                  },
+                  {
+                    name: "Sunita Rao", role: "COO / Head of Operations", bank: "NBFC, ₹8,000 Cr AUM", color: "border-emerald-500/30 bg-emerald-500/5", badge: "green",
+                    goals: ["Process 200+ loans per month with current headcount", "Achieve <2% error rate in loan booking", "Pass RBI audit with zero process findings"],
+                    pains: ["Loan booking requires 12–15 manual data entry steps across 4 systems", "Compliance checking is a manual checklist that takes 2–3 days", "8% of loans have booking errors requiring 2.3 days to correct"],
+                    quote: '"Every loan we process goes through 28 handoffs. Each handoff is a delay, an error, and a compliance risk. I need to cut that to 8 handoffs without adding headcount."',
+                    kpis: ["Loans processed per FTE", "Booking error rate", "Compliance audit findings", "TAT"],
+                    techComfort: "High — process-oriented, comfortable with workflow tools, focused on measurable outcomes",
+                  },
+                  {
+                    name: "Rajesh Kumar", role: "MD & CEO", bank: "Mid-size private bank, ₹22,000 Cr book", color: "border-amber-500/30 bg-amber-500/5", badge: "amber",
+                    goals: ["Grow loan book 20% YoY without proportional cost increase", "Reduce cost-to-income ratio from 52% to 45%", "Maintain regulatory standing and avoid RBI action"],
+                    pains: ["Cannot grow loan book without hiring more underwriters (1:1 scaling)", "Losing SME market share to digital lenders with 48-hour decisions", "Board asks about AI strategy — no credible answer yet"],
+                    quote: '"My competitors are offering 48-hour decisions. My bank takes 21 days. I am not losing on price — I am losing on speed. And I cannot hire my way out of this problem."',
+                    kpis: ["Loan book growth", "Cost-to-income ratio", "Market share", "ROA/ROE"],
+                    techComfort: "Low-medium — needs executive dashboards and business outcomes, not technical details",
                   },
                 ].map((p) => (
-                  <div key={p.phase} className={`rounded-2xl border p-5 ${p.color}`}>
-                    <div className="flex items-start justify-between flex-wrap gap-3 mb-4">
+                  <div key={p.name} className={`rounded-xl border p-5 ${p.color}`}>
+                    <div className="flex items-start justify-between gap-4 mb-4">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <Tag color={p.badge as "green" | "amber" | "blue"}>{p.phase}</Tag>
-                          <span className="text-xs text-muted-foreground">{p.period}</span>
+                          <span className="text-base font-bold text-foreground">{p.name}</span>
+                          <Tag color={p.badge}>{p.role}</Tag>
                         </div>
-                        <div className="text-base font-bold text-foreground">{p.title}</div>
-                        <p className="text-xs text-muted-foreground mt-1 max-w-xl leading-relaxed">{p.objective}</p>
+                        <div className="text-[11px] text-muted-foreground">{p.bank}</div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-[10px] text-muted-foreground mb-1">Agents Deployed</div>
-                        <div className="flex flex-wrap gap-1 justify-end">
-                          {p.agents.map((a) => (
-                            <span key={a} className="text-[10px] bg-white/5 border border-white/10 rounded px-1.5 py-0.5 text-muted-foreground">{a}</span>
+                      <div className="text-[10px] text-muted-foreground/60 text-right">Tech Comfort<br /><span className="text-foreground/70 font-medium">{p.techComfort}</span></div>
+                    </div>
+                    <blockquote className="text-[11px] italic text-muted-foreground/80 border-l-2 border-primary/40 pl-3 mb-4 leading-relaxed">{p.quote}</blockquote>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Goals</div>
+                        <ul className="space-y-1">{p.goals.map(g => <li key={g} className="flex items-start gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>)}</ul>
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Pain Points</div>
+                        <ul className="space-y-1">{p.pains.map(g => <li key={g} className="flex items-start gap-1.5"><AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>)}</ul>
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Success KPIs</div>
+                        <ul className="space-y-1">{p.kpis.map(g => <li key={g} className="flex items-start gap-1.5"><Target className="w-3 h-3 text-blue-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>)}</ul>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* ── S07: Customer Journey Map ── */}
+            <section id="s07" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="07" label="Customer Journey Map" icon={ArrowRight}
+                description="Three representative journeys with step-by-step Today vs. Agentic comparisons, showing how agents reduce steps, handoffs, and subjectivity while keeping humans accountable for all credit decisions." />
+              <div className="space-y-8">
+                {[
+                  {
+                    title: "Journey 1: New-to-Bank SME Working Capital Loan", subtitle: "TechVentures Pvt. Ltd. — ₹2.5 Cr working capital facility", color: "border-blue-500/30", badge: "blue",
+                    today: { time: "21 days", handoffs: 28, cost: "₹18,500", steps: [
+                      ["Day 1–2", "RM meets prospect, manually fills application form, emails documents checklist"],
+                      ["Day 3–5", "Borrower submits documents; ops team manually sorts and names files"],
+                      ["Day 5–8", "Underwriter manually extracts financials from PDFs into Excel (4–6 hrs)"],
+                      ["Day 8–12", "Underwriter writes credit memo from scratch (8–12 hrs)"],
+                      ["Day 12–14", "Compliance manually checks 12-point checklist (2–3 days)"],
+                      ["Day 14–17", "Credit committee review; DOA routing via email chain"],
+                      ["Day 17–19", "Ops generates loan documents, manually books into CBS (12–15 steps)"],
+                      ["Day 19–21", "Disbursement; RM notified by email"],
+                    ]},
+                    agentic: { time: "3–5 days", handoffs: 8, cost: "₹4,200", steps: [
+                      ["Hour 0–2", "Intake Agent validates eligibility, pre-fills application from bureau/GST data, sends smart document checklist"],
+                      ["Hour 2–4", "Document Agent classifies, verifies, and extracts data from all uploaded documents; flags missing items"],
+                      ["Hour 4–6", "Spreading Agent auto-extracts financials, calculates ratios, flags anomalies with confidence scores"],
+                      ["Hour 6–8", "Underwriting Copilot generates full credit memo draft with cited sources; underwriter reviews and edits (45 min)"],
+                      ["Hour 8–10", "Compliance Agent runs 47 automated policy checks; flags 2 items for human review"],
+                      ["Day 2", "Approval Flow Agent routes to correct approver per DOA; committee reviews AI summary"],
+                      ["Day 3", "Closing Agent generates documentation, auto-books into CBS with zero manual re-entry"],
+                      ["Day 3–5", "Disbursement; RM receives real-time notification; Monitoring Agent begins EWS tracking"],
+                    ]},
+                  },
+                  {
+                    title: "Journey 2: Renewal with Enhancement", subtitle: "Meridian Manufacturing — ₹15 Cr term loan renewal + ₹3 Cr enhancement", color: "border-emerald-500/30", badge: "green",
+                    today: { time: "14 days", handoffs: 22, cost: "₹14,200", steps: [
+                      ["Day 1–2", "RM initiates renewal; ops pulls previous credit file manually"],
+                      ["Day 2–4", "Borrower resubmits all documents (same as original — no delta analysis)"],
+                      ["Day 4–7", "Underwriter re-spreads all 3 years of financials from scratch (no reuse)"],
+                      ["Day 7–10", "Full credit memo rewritten (no template reuse from previous cycle)"],
+                      ["Day 10–12", "Full compliance re-check (same 12-point checklist as new deal)"],
+                      ["Day 12–14", "Approval routing and disbursement"],
+                    ]},
+                    agentic: { time: "1–2 days", handoffs: 5, cost: "₹2,800", steps: [
+                      ["Hour 0–1", "Intake Agent identifies existing relationship; pulls previous credit file, performance history, covenant compliance record"],
+                      ["Hour 1–3", "Document Agent requests only delta documents (latest year financials, updated KYC); pre-fills from existing data"],
+                      ["Hour 3–5", "Spreading Agent runs delta analysis — only new year spreads, compares to previous 2 years automatically"],
+                      ["Hour 5–7", "Underwriting Copilot generates renewal memo with performance-vs-projection analysis; highlights changes from original approval"],
+                      ["Hour 7–9", "Compliance Agent runs delta compliance check — only checks items that could have changed"],
+                      ["Day 1–2", "Streamlined approval for renewal (lower DOA threshold for performing accounts); auto-booking and disbursement"],
+                    ]},
+                  },
+                  {
+                    title: "Journey 3: Stressed Account Monitoring & Intervention", subtitle: "Coastal Real Estate Developers — ₹28 Cr term loan, showing early stress signals", color: "border-red-500/30", badge: "red",
+                    today: { time: "45-day lag", handoffs: 12, cost: "₹85,000 in lost recovery", steps: [
+                      ["Month 1–3", "Quarterly monitoring review — account appears performing"],
+                      ["Month 4", "GST filings decline 35% — not detected (no automated monitoring)"],
+                      ["Month 5", "Bank statement shows irregular cash flows — not detected"],
+                      ["Month 6", "Covenant breach on DSCR — discovered during annual review"],
+                      ["Month 6–7", "RM calls client; client discloses project delays (already 45 days late)"],
+                      ["Month 7–9", "Ad hoc workout strategy developed; recovery options significantly reduced"],
+                    ]},
+                    agentic: { time: "Real-time", handoffs: 3, cost: "₹12,000 (intervention cost)", steps: [
+                      ["Day 1 (Month 4)", "Monitoring Agent detects 35% GST filing decline; cross-references with sector data; risk score moves from Green to Watch"],
+                      ["Day 3", "Agent detects irregular bank statement cash flows; risk score moves to Alert; RM receives proactive notification"],
+                      ["Day 5", "Compliance Agent verifies covenant status; DSCR projected to breach in 30 days based on current trajectory"],
+                      ["Day 7", "Workout Agent generates 3 intervention strategies with historical outcome data; CRO reviews and selects strategy"],
+                      ["Day 10", "RM meets client with structured intervention proposal — 45 days before the problem becomes a default"],
+                      ["Day 30–60", "Restructuring completed; account returns to performing; recovery rate 87% vs. 64% industry average for late-stage interventions"],
+                    ]},
+                  },
+                ].map((j) => (
+                  <div key={j.title} className={`rounded-xl border ${j.color} overflow-hidden`}>
+                    <div className="px-5 py-4 border-b border-border/50 bg-white/2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Tag color={j.badge}>Journey</Tag>
+                        <span className="text-sm font-bold text-foreground">{j.title}</span>
+                      </div>
+                      <div className="text-[11px] text-muted-foreground">{j.subtitle}</div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/50">
+                      <div className="p-5">
+                        <div className="flex items-center gap-3 mb-3">
+                          <Tag color="red">Today</Tag>
+                          <span className="text-xs font-bold text-foreground">{j.today.time}</span>
+                          <span className="text-[10px] text-muted-foreground">· {j.today.handoffs} handoffs · {j.today.cost}</span>
+                        </div>
+                        <div className="space-y-1.5">
+                          {j.today.steps.map(([t, s]) => (
+                            <div key={t as string} className="flex items-start gap-2">
+                              <span className="text-[10px] font-mono text-muted-foreground/60 flex-shrink-0 w-16 mt-0.5">{t as string}</span>
+                              <span className="text-[11px] text-muted-foreground leading-relaxed">{s as string}</span>
+                            </div>
                           ))}
                         </div>
                       </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="sm:col-span-2">
-                        <div className="text-[10px] font-semibold text-foreground uppercase tracking-wider mb-2">Milestones</div>
-                        {p.milestones.map((m) => (
-                          <div key={m.month} className="flex items-start gap-2 mb-2">
-                            <Tag color={p.badge as "green" | "amber" | "blue"}>{m.month}</Tag>
-                            <span className="text-[11px] text-muted-foreground leading-tight flex-1">{m.deliverable}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider mb-2">Phase KPIs</div>
-                        {p.kpis.map((k) => (
-                          <div key={k} className="flex items-start gap-1.5 mb-1.5">
-                            <TrendingUp className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" />
-                            <span className="text-[11px] text-muted-foreground leading-tight">{k}</span>
-                          </div>
-                        ))}
-                        <div className="mt-3 p-2 bg-white/3 rounded-lg border border-white/10">
-                          <div className="text-[10px] font-semibold text-amber-400 mb-1">Go/No-Go Criteria</div>
-                          <p className="text-[10px] text-muted-foreground leading-tight">{p.goNoGo}</p>
+                      <div className="p-5">
+                        <div className="flex items-center gap-3 mb-3">
+                          <Tag color="green">Agentic</Tag>
+                          <span className="text-xs font-bold text-foreground">{j.agentic.time}</span>
+                          <span className="text-[10px] text-muted-foreground">· {j.agentic.handoffs} handoffs · {j.agentic.cost}</span>
+                        </div>
+                        <div className="space-y-1.5">
+                          {j.agentic.steps.map(([t, s]) => (
+                            <div key={t as string} className="flex items-start gap-2">
+                              <span className="text-[10px] font-mono text-emerald-400/60 flex-shrink-0 w-16 mt-0.5">{t as string}</span>
+                              <span className="text-[11px] text-muted-foreground leading-relaxed">{s as string}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
-
-                {/* Closing statement */}
-                <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-card p-6 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <Award className="w-5 h-5 text-primary" />
-                    <span className="text-sm font-bold text-foreground">The Opportunity</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                    Commercial lending is a $26.5 trillion market running on 30-year-old infrastructure. The banks that deploy agentic AI in the next 18 months will not just be more efficient — they will be structurally faster, more accurate, and more profitable than those that don't. LendAI is not a feature. It is a new operating model for commercial credit.
-                  </p>
-                  <div className="flex items-center justify-center gap-6 mt-4 flex-wrap">
-                    {[
-                      { v: "$27.4M", l: "Annual value per bank" },
-                      { v: "865%", l: "3-year ROI" },
-                      { v: "18 months", l: "To full deployment" },
-                      { v: "$26.5T", l: "Market opportunity" },
-                    ].map((m) => (
-                      <div key={m.l} className="text-center">
-                        <div className="text-lg font-black text-primary">{m.v}</div>
-                        <div className="text-[10px] text-muted-foreground">{m.l}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
               </div>
             </section>
 
+            {/* ── S08: Concept Testing ── */}
+            <section id="s08" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="08" label="Concept Testing" icon={Lightbulb}
+                description="Two rounds of concept testing with 28 practitioners across 6 institutions validated the core product hypotheses and surfaced critical design requirements before a single line of code was written." />
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InsightBox title="Round 1: Paper Prototype Testing (n=14)" color="blue">
+                    <DataTable
+                      headers={["Hypothesis", "Result", "Confidence"]}
+                      rows={[
+                        ["RMs will trust AI document classification", "Validated — 11/14 said yes with confidence scores", <Tag color="green">High</Tag>],
+                        ["Underwriters will use AI credit memo drafts", "Validated — 13/14 said yes if sources are cited", <Tag color="green">High</Tag>],
+                        ["CROs will act on AI EWS alerts", "Validated — 12/14 said yes if reasoning is shown", <Tag color="green">High</Tag>],
+                        ["Users will accept AI compliance checks", "Validated — 14/14 said yes if human override exists", <Tag color="green">High</Tag>],
+                        ["Auto-approval for low-risk deals", "Rejected — 0/14 accepted; humans must approve all deals", <Tag color="red">Invalidated</Tag>],
+                      ]}
+                    />
+                  </InsightBox>
+                  <InsightBox title="Round 2: Interactive Prototype Testing (n=14)" color="green">
+                    <DataTable
+                      headers={["Feature", "Task Success", "NPS"]}
+                      rows={[
+                        ["Document upload + AI classification", "13/14 (93%)", "+67"],
+                        ["Financial spreading review", "12/14 (86%)", "+54"],
+                        ["Credit memo AI draft + edit", "14/14 (100%)", "+71"],
+                        ["EWS alert + intervention workflow", "11/14 (79%)", "+48"],
+                        ["DOA routing visualization", "13/14 (93%)", "+62"],
+                      ]}
+                    />
+                  </InsightBox>
+                </div>
+                <InsightBox title="Critical Design Insights from Concept Testing" color="amber">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+                    {[
+                      { insight: "Confidence scores are mandatory", detail: "Every AI output must show a confidence percentage. Without it, 10/14 users said they would not trust the output." },
+                      { insight: "Source citations are non-negotiable", detail: "Credit memo figures must link to the source document page. 13/14 underwriters said this is their primary trust signal." },
+                      { insight: "Override is the most important button", detail: "The human override button must be prominent and easy to use. Its visibility actually increases trust in the AI output." },
+                      { insight: "Progressive disclosure works", detail: "Show the AI summary first; let users drill into details on demand. Showing all details upfront caused cognitive overload." },
+                      { insight: "Explain the 'why', not just the 'what'", detail: "EWS alerts that showed the reasoning chain (GST decline → cash flow irregularity → DSCR projection) were acted on 3× more than alerts that just showed a risk score." },
+                      { insight: "Audit trail must be visible, not buried", detail: "CROs want to see the audit trail in the main workflow, not in a separate compliance module. It is a trust signal, not a compliance checkbox." },
+                    ].map(i => (
+                      <div key={i.insight} className="border border-border/50 rounded-lg p-3">
+                        <div className="text-[11px] font-bold text-foreground mb-1">{i.insight}</div>
+                        <div className="text-[10px] text-muted-foreground leading-relaxed">{i.detail}</div>
+                      </div>
+                    ))}
+                  </div>
+                </InsightBox>
+              </div>
+            </section>
+
+            {/* ── S09: Prioritization Framework ── */}
+            <section id="s09" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="09" label="Prioritization Framework" icon={Target}
+                description="Features are prioritized using a RICE framework (Reach × Impact × Confidence ÷ Effort) combined with a strategic dependency map. Phase 1 features are those with the highest RICE score AND the lowest regulatory risk." />
+              <div className="space-y-6">
+                <DataTable
+                  headers={["Feature", "Reach", "Impact", "Confidence", "Effort", "RICE Score", "Phase"]}
+                  rows={[
+                    ["AI Document Classification", "High (all deals)", "High (saves 3–5 days)", "94%", "Medium", "156", <Tag color="green">Phase 1</Tag>],
+                    ["Automated Financial Spreading", "High (all deals)", "High (saves 4–6 hrs)", "91%", "High", "136", <Tag color="green">Phase 1</Tag>],
+                    ["AI Credit Memo Draft", "High (all deals)", "High (saves 8–12 hrs)", "88%", "High", "124", <Tag color="green">Phase 1</Tag>],
+                    ["EWS & Portfolio Monitoring", "High (all accounts)", "Critical (NPL prevention)", "85%", "High", "120", <Tag color="green">Phase 1</Tag>],
+                    ["Automated Compliance Checks", "High (all deals)", "High (saves 2–3 days)", "90%", "Medium", "162", <Tag color="green">Phase 1</Tag>],
+                    ["DOA Routing Automation", "High (all deals)", "Medium (saves 3–5 days)", "92%", "Low", "169", <Tag color="green">Phase 1</Tag>],
+                    ["Automated Loan Booking", "High (all deals)", "Medium (saves 1–2 days)", "87%", "High", "114", <Tag color="amber">Phase 2</Tag>],
+                    ["Learned Underwriting Model", "High (all deals)", "High (improves risk quality)", "72%", "Very High", "86", <Tag color="amber">Phase 2</Tag>],
+                    ["Workout Strategy Recommendations", "Medium (stressed accounts)", "High (improves recovery)", "78%", "High", "78", <Tag color="amber">Phase 2</Tag>],
+                    ["Multi-language Document Support", "Medium", "Medium", "80%", "High", "64", <Tag color="purple">Phase 3</Tag>],
+                    ["Mobile RM App", "High", "Medium", "85%", "Very High", "72", <Tag color="purple">Phase 3</Tag>],
+                    ["Peer Benchmarking", "Low", "Low", "70%", "High", "29", <Tag color="gray">Backlog</Tag>],
+                  ]}
+                />
+                <InsightBox title="Prioritization Rationale: Why Phase 1 Features Were Selected First" color="blue">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
+                    {[
+                      { title: "Data Readiness", body: "Document classification, spreading, and compliance checks operate on documents that are already in the system. No new data infrastructure is required for Phase 1." },
+                      { title: "Regulatory Risk", body: "Phase 1 features are AI-assisted, not AI-decided. Humans review and approve all outputs. This is the lowest-risk posture for regulatory acceptance." },
+                      { title: "Business Impact", body: "The 6 Phase 1 features address 78% of the total time-to-decision reduction and 65% of the cost-per-loan reduction. Maximum ROI for minimum risk." },
+                    ].map(r => (
+                      <div key={r.title} className="border border-border/50 rounded-lg p-3">
+                        <div className="text-[11px] font-bold text-foreground mb-1">{r.title}</div>
+                        <div className="text-[10px] text-muted-foreground leading-relaxed">{r.body}</div>
+                      </div>
+                    ))}
+                  </div>
+                </InsightBox>
+              </div>
+            </section>
+
+            {/* ── S10: A/B Testing Strategy ── */}
+            <section id="s10" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="10" label="A/B Testing Strategy" icon={Activity}
+                description="A structured experimentation framework to validate AI agent performance against the current-state baseline. All tests are designed to be statistically significant, regulator-friendly, and reversible." />
+              <div className="space-y-6">
+                <DataTable
+                  headers={["Test", "Hypothesis", "Control", "Treatment", "Primary Metric", "Sample Size", "Duration"]}
+                  rows={[
+                    ["T-01: Document Classification", "AI classification reduces doc processing time by ≥60%", "Manual ops team sorting", "Document Orchestration Agent", "Processing time per deal", "n=200 deals", "8 weeks"],
+                    ["T-02: Financial Spreading", "AI spreading reduces underwriter time by ≥70%", "Manual Excel spreading", "Spreading Agent (human review)", "Hours per deal spread", "n=150 deals", "10 weeks"],
+                    ["T-03: Credit Memo Quality", "AI draft + human edit ≥ quality of fully manual memo", "Fully manual credit memo", "AI draft + 45-min human edit", "Blind quality score (1–10)", "n=100 memos", "12 weeks"],
+                    ["T-04: EWS Lead Time", "AI EWS detects stress 30+ days earlier than current process", "Quarterly manual review", "Real-time Monitoring Agent", "Days of early warning", "n=500 accounts", "6 months"],
+                    ["T-05: Compliance Accuracy", "AI compliance checks ≥ accuracy of manual checklist", "Manual 12-point checklist", "Compliance Agent (47 checks)", "False negative rate", "n=300 deals", "8 weeks"],
+                    ["T-06: DOA Routing Speed", "Auto-routing reduces approval cycle by ≥50%", "Manual email-based routing", "Approval Flow Agent", "Hours from submission to decision", "n=200 deals", "8 weeks"],
+                  ]}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InsightBox title="Testing Guardrails" color="amber">
+                    <ul className="space-y-1.5 mt-1">
+                      {[
+                        "All tests require 95% statistical confidence before production rollout",
+                        "Credit quality metrics (NPL rate, DSCR accuracy) are monitored throughout — test halted if quality degrades",
+                        "Human override rate is tracked — if >20% of AI outputs are overridden, the agent is retrained before scaling",
+                        "Regulator-accessible test log maintained for all A/B tests",
+                        "No test involves fully automated credit decisions — human approval required throughout",
+                      ].map(g => <li key={g} className="flex items-start gap-2"><Shield className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>)}
+                    </ul>
+                  </InsightBox>
+                  <InsightBox title="Success Criteria for Production Rollout" color="green">
+                    <DataTable
+                      headers={["Agent", "Minimum Threshold", "Target"]}
+                      rows={[
+                        ["Document Classification", "≥90% accuracy", "≥94% accuracy"],
+                        ["Financial Spreading", "≥85% field accuracy", "≥92% field accuracy"],
+                        ["Credit Memo Quality", "≥7.5/10 blind score", "≥8.5/10 blind score"],
+                        ["EWS Lead Time", "≥20 days early warning", "≥45 days early warning"],
+                        ["Compliance Checks", "0% false negatives", "0% false negatives"],
+                      ]}
+                    />
+                  </InsightBox>
+                </div>
+              </div>
+            </section>
+
+            {/* ── S11: User Story Detailing ── */}
+            <section id="s11" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="11" label="User Story Detailing" icon={BookOpen}
+                description="Detailed user stories for the 12 highest-priority features, written in standard format with acceptance criteria, edge cases, and definition of done. Stories are mapped to personas and agents." />
+              <div className="space-y-4">
+                <DataTable
+                  headers={["Story ID", "Persona", "User Story", "Acceptance Criteria", "Agent", "Priority"]}
+                  rows={[
+                    ["US-01", <Tag color="blue">RM</Tag>, "As an RM, I want to upload a document bundle and have the AI classify each document so I don't have to manually sort and name files", "≥94% classification accuracy; confidence score shown; low-confidence items flagged for review; processing <2 min per document", "Document Orchestration", <Tag color="red">P0</Tag>],
+                    ["US-02", <Tag color="purple">Underwriter</Tag>, "As an underwriter, I want the AI to extract financial data from uploaded statements and populate a spreading template so I can review rather than re-enter data", "All standard line items extracted; confidence score per field; source page cited; anomalies flagged; human can edit any field", "Spreading Agent", <Tag color="red">P0</Tag>],
+                    ["US-03", <Tag color="purple">Underwriter</Tag>, "As an underwriter, I want an AI-drafted credit memo with all figures linked to source documents so I can review and edit rather than write from scratch", "Full memo draft in <15 min; every figure has a clickable citation; underwriter can edit any section; final memo shows human as author", "Underwriting Copilot", <Tag color="red">P0</Tag>],
+                    ["US-04", <Tag color="red">CRO</Tag>, "As a CRO, I want to receive a proactive alert when a portfolio account shows early stress signals, with specific intervention recommendations", "Alert within 24h of trigger; reasoning chain shown (which signals triggered alert); 3 intervention options with historical outcome data", "Monitoring & EWS", <Tag color="red">P0</Tag>],
+                    ["US-05", <Tag color="green">COO</Tag>, "As a COO, I want automated compliance checks to run on every deal so I don't need a manual checklist review", "47 checks run automatically; results shown with pass/fail/flag; flagged items require human review; audit trail maintained", "Compliance Agent", <Tag color="red">P0</Tag>],
+                    ["US-06", <Tag color="amber">CXO</Tag>, "As a CXO, I want deals to be automatically routed to the correct approver based on DOA matrix so approval delays are eliminated", "Auto-route within 30 min; correct approver identified per DOA; escalation triggered if no response in 4h; full routing log maintained", "Approval Flow", <Tag color="red">P0</Tag>],
+                    ["US-07", <Tag color="blue">RM</Tag>, "As an RM, I want to see the real-time status of all my deals in a single pipeline view so I don't have to call ops for updates", "All deals visible with current stage, days-in-stage, next action, and responsible party; updates in real-time", "Platform", <Tag color="amber">P1</Tag>],
+                    ["US-08", <Tag color="purple">Underwriter</Tag>, "As an underwriter, I want to override any AI recommendation with a single click and capture my reasoning so the audit trail is complete", "Override button visible on every AI output; mandatory reason field (min 20 chars); override logged with timestamp, user, and reason", "All Agents", <Tag color="red">P0</Tag>],
+                    ["US-09", <Tag color="red">CRO</Tag>, "As a CRO, I want a portfolio-level risk dashboard showing risk score distribution, covenant compliance, and EWS alerts so I can manage the portfolio proactively", "Real-time dashboard; risk score distribution by segment; covenant breach alerts; EWS alert count by severity; drill-down to account level", "Monitoring Agent", <Tag color="amber">P1</Tag>],
+                    ["US-10", <Tag color="green">COO</Tag>, "As a COO, I want approved loans to be automatically booked into the CBS with zero manual data re-entry so booking errors are eliminated", "Auto-booking within 2h of approval; zero manual re-entry; booking confirmation with error check; rollback capability if CBS rejects", "Closing Agent", <Tag color="amber">P1</Tag>],
+                    ["US-11", <Tag color="purple">Underwriter</Tag>, "As an underwriter, I want the AI to perform a delta analysis on renewal applications so I only review what has changed since the last credit cycle", "Previous credit file auto-loaded; delta highlighted; only changed items flagged for review; performance vs. projection analysis shown", "Underwriting Copilot", <Tag color="amber">P1</Tag>],
+                    ["US-12", <Tag color="red">CRO</Tag>, "As a CRO, I want the AI to recommend workout strategies for stressed accounts based on historical outcomes so my team has a structured starting point", "3 strategy options shown; each with historical success rate, recovery rate, and comparable case count; human selects and customizes", "Workout Agent", <Tag color="amber">P1</Tag>],
+                  ]}
+                />
+              </div>
+            </section>
+
+            {/* ── S12: Functional Requirements — All 9 Agent Specs ── */}
+            <section id="s12" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="12" label="Functional Requirements" icon={Cpu}
+                description="Complete specifications for all 9 AI agents, including goals, inputs, actions, outputs, failure modes, human-in-the-loop points, and system integrations. Every agent is designed to be autonomous but controllable." />
+              <div className="space-y-6">
+                {[
+                  {
+                    num: "01", name: "Intake & Eligibility Agent", color: "border-blue-500/30 bg-blue-500/3", badge: "blue",
+                    goal: "Automate the pre-qualification and application intake process, reducing RM data entry by 80% and ensuring only eligible applications enter the underwriting pipeline.",
+                    inputs: ["Borrower name/CIN/PAN", "Bureau data (CIBIL/Experian)", "GST filings (via API)", "Bank statements (via AA framework)", "Existing relationship data (CRM)"],
+                    actions: ["Validate eligibility against 23 pre-qualification criteria", "Pre-fill application from bureau/GST/CRM data", "Generate smart document checklist (borrower-specific)", "Score initial risk tier (High/Medium/Low)", "Route to appropriate RM/product based on deal size and type"],
+                    outputs: ["Pre-filled application (80%+ complete)", "Eligibility score with reasoning", "Borrower-specific document checklist", "Initial risk tier classification"],
+                    failures: ["Bureau API timeout → fallback to manual entry with alert", "GST data mismatch → flag for manual verification", "Eligibility score below threshold → route to decline queue with reason"],
+                    hitl: ["Eligibility borderline cases (score 40–60)", "Existing relationship with prior defaults", "Deal size above RM authority"],
+                    integrations: ["CIBIL/Experian API", "GSTN API", "Account Aggregator (AA) framework", "CRM (Salesforce/custom)", "LOS"],
+                  },
+                  {
+                    num: "02", name: "Document Orchestration Agent", color: "border-purple-500/30 bg-purple-500/3", badge: "purple",
+                    goal: "Eliminate manual document sorting, naming, and completeness checking. Ensure the underwriting team receives a complete, verified, and structured document package within 2 hours of submission.",
+                    inputs: ["Raw document uploads (PDF, image, Excel)", "Borrower-specific document checklist", "Deal type and product parameters"],
+                    actions: ["Classify each document by type (94%+ accuracy)", "Verify document authenticity signals (watermarks, digital signatures)", "Check completeness against required checklist", "Extract metadata (date, issuing authority, period covered)", "Request missing documents from borrower automatically", "Version-control all documents with upload timestamp"],
+                    outputs: ["Classified document package with confidence scores", "Completeness report (% complete, missing items)", "Authenticity flags for suspicious documents", "Structured document metadata"],
+                    failures: ["Low confidence classification (<85%) → flag for human review", "Suspected tampered document → escalate to compliance team immediately", "Missing critical document after 3 reminders → escalate to RM"],
+                    hitl: ["Documents with confidence score <85%", "Any document flagged for authenticity concerns", "Documents in unsupported languages"],
+                    integrations: ["S3 document storage", "LLM vision API (document understanding)", "Email/SMS gateway (borrower reminders)", "LOS document management"],
+                  },
+                  {
+                    num: "03", name: "Document Understanding & Spreading Agent", color: "border-emerald-500/30 bg-emerald-500/3", badge: "green",
+                    goal: "Automate financial spreading from PDF/image financial statements, reducing underwriter time from 4–6 hours to <30 minutes while achieving ≥92% field-level accuracy with full source citations.",
+                    inputs: ["Classified financial documents (P&L, balance sheet, cash flow)", "Industry-specific spreading template", "Previous year spreads (for delta analysis)"],
+                    actions: ["Extract all financial line items with page/cell citations", "Normalize to standard spreading template", "Calculate 18 standard financial ratios (DSCR, LTV, ICR, etc.)", "Flag anomalies and inconsistencies (YoY variance >30%)", "Run delta analysis for renewals", "Generate confidence score per extracted field"],
+                    outputs: ["Completed spreading template (92%+ accuracy)", "Confidence score per field with source citation", "Financial ratio analysis with industry benchmarks", "Anomaly flags with explanations", "Delta analysis report (renewals only)"],
+                    failures: ["Handwritten financials → flag for manual spreading with OCR assist", "Non-standard format → attempt extraction, flag low-confidence fields", "Inconsistent figures across documents → flag for reconciliation"],
+                    hitl: ["Any field with confidence <85%", "YoY variance >50% on key metrics", "Figures inconsistent across documents", "First-time borrower with no comparable data"],
+                    integrations: ["LLM vision API", "Industry benchmark database", "Spreading template engine", "LOS financial data module"],
+                  },
+                  {
+                    num: "04", name: "Underwriting Copilot Agent", color: "border-amber-500/30 bg-amber-500/3", badge: "amber",
+                    goal: "Generate a complete, bank-grade credit memo draft in <15 minutes, with every figure linked to its source document, reducing underwriter drafting time from 8–12 hours to 45 minutes of review and editing.",
+                    inputs: ["Completed spreading data", "Borrower profile and relationship history", "Industry analysis and benchmarks", "Bank's credit policy and product parameters", "Comparable deal outcomes (from learned model)"],
+                    actions: ["Generate structured credit memo (6 sections: Executive Summary, Borrower Profile, Financial Analysis, Risk Assessment, Mitigants, Recommendation)", "Link every figure to source document with page citation", "Apply bank's credit policy to generate policy compliance summary", "Identify top 5 risks with mitigants", "Generate recommendation (Approve/Decline/Conditional) with reasoning", "Flag sections requiring underwriter judgment"],
+                    outputs: ["Full credit memo draft with cited sources", "Policy compliance summary", "Risk and mitigant analysis", "Recommendation with confidence score", "Sections flagged for human judgment"],
+                    failures: ["Insufficient financial data → generate partial memo, flag missing sections", "Conflicting data signals → present both interpretations, flag for human judgment", "Deal outside policy parameters → flag immediately, do not generate recommendation"],
+                    hitl: ["Final recommendation (always — AI recommends, human decides)", "Risk sections flagged as requiring judgment", "Any deal outside standard policy parameters", "Deals with prior relationship issues"],
+                    integrations: ["Spreading Agent output", "LLM API (memo generation)", "Credit policy engine", "Document management (citations)", "CRM (relationship history)"],
+                  },
+                  {
+                    num: "05", name: "Compliance & Policy Agent", color: "border-cyan-500/30 bg-cyan-500/3", badge: "cyan",
+                    goal: "Run 47 automated compliance and policy checks on every deal, replacing a 2–3 day manual checklist process with a <1 hour automated review while maintaining 0% false negative rate on critical checks.",
+                    inputs: ["Deal parameters (amount, tenor, security, borrower type)", "Borrower KYC and AML data", "Bank's credit policy document", "RBI/regulatory guidelines", "Sanction list databases"],
+                    actions: ["Run 47 compliance checks (KYC, AML, RBI exposure norms, sector limits, concentration limits, product policy)", "Flag items requiring human review with specific regulation cited", "Generate compliance certificate for passing deals", "Maintain audit trail of all checks with timestamp and result", "Alert on regulatory limit breaches in real time"],
+                    outputs: ["Compliance check report (pass/fail/flag per check)", "Compliance certificate (for passing deals)", "Regulatory flag alerts with specific citation", "Full audit trail"],
+                    failures: ["Regulatory database unavailable → halt deal, alert compliance team", "AML match (even partial) → immediately escalate to compliance officer, halt deal", "Policy ambiguity → flag for human interpretation, do not auto-pass"],
+                    hitl: ["Any AML/sanctions match (mandatory escalation)", "Regulatory limit approaching threshold (>80% utilization)", "Policy exceptions requiring senior approval", "New borrower types not covered by existing policy"],
+                    integrations: ["RBI regulatory database", "FATF/UN sanctions lists", "Bank's credit policy engine", "AML screening service (LexisNexis/Refinitiv)", "Audit log system"],
+                  },
+                  {
+                    num: "06", name: "Approval Flow Agent", color: "border-violet-500/30 bg-violet-500/3", badge: "purple",
+                    goal: "Automate DOA-based deal routing, eliminating 3–5 day email chain delays and ensuring every deal reaches the correct approver within 30 minutes of submission with full context.",
+                    inputs: ["Deal parameters (amount, risk grade, product type, borrower segment)", "Bank's DOA matrix", "Approver availability and delegation status", "Deal package (credit memo, compliance report, spreading)"],
+                    actions: ["Determine correct approver(s) per DOA matrix", "Package deal with AI-generated executive summary for approver", "Route to approver with full context and recommended decision", "Track response time and escalate if SLA breached (4h default)", "Manage delegation and out-of-office routing", "Record approval/rejection with timestamp and reason"],
+                    outputs: ["Routing confirmation with approver name and SLA", "Approver-ready deal package with AI summary", "Escalation alerts (SLA breach)", "Approval/rejection record with full audit trail"],
+                    failures: ["Approver unavailable and no delegate → escalate to next level with alert", "DOA matrix ambiguity → route to both possible approvers with flag", "SLA breach after 3 escalations → alert COO/CXO"],
+                    hitl: ["All final credit decisions (always — agent routes, human decides)", "DOA exceptions requiring senior sign-off", "Deals with compliance flags"],
+                    integrations: ["DOA matrix engine", "Calendar/availability API", "Email/notification system", "LOS approval workflow", "Digital signature platform"],
+                  },
+                  {
+                    num: "07", name: "Closing & Booking Agent", color: "border-rose-500/30 bg-rose-500/3", badge: "red",
+                    goal: "Automate loan documentation generation and CBS booking, eliminating 12–15 manual data entry steps and reducing the booking error rate from 8% to <0.5%.",
+                    inputs: ["Approved deal parameters", "Borrower and guarantor data", "Collateral details", "Bank's standard documentation templates", "CBS API credentials"],
+                    actions: ["Generate standard loan documentation from approved parameters", "Pre-populate all fields from deal data (zero manual re-entry)", "Run pre-booking validation (all required fields present, no conflicts)", "Book loan into CBS via API", "Trigger collateral management system update", "Generate disbursement instruction", "Send confirmation to RM and borrower"],
+                    outputs: ["Complete loan documentation package", "CBS booking confirmation with loan account number", "Collateral management system update", "Disbursement instruction", "Booking error report (if any)"],
+                    failures: ["CBS API rejection → alert ops team with specific error, do not retry without human review", "Documentation template mismatch → flag for legal review", "Collateral value discrepancy → halt disbursement, alert credit officer"],
+                    hitl: ["Non-standard documentation (deviations from template)", "CBS booking errors (mandatory human review before retry)", "Disbursement above threshold (senior ops sign-off)"],
+                    integrations: ["CBS (Finacle/Temenos/Flexcube)", "Document generation engine", "Collateral management system", "Digital signature platform", "Disbursement system"],
+                  },
+                  {
+                    num: "08", name: "Monitoring & Early Warning Agent", color: "border-teal-500/30 bg-teal-500/3", badge: "cyan",
+                    goal: "Transform portfolio monitoring from quarterly-reactive to real-time-proactive, providing 45-day early warning on deteriorating accounts and reducing NPL formation by 30%.",
+                    inputs: ["Bank statement data (monthly via AA framework)", "GST filing data (quarterly)", "Bureau updates (monthly)", "Financial covenants from loan agreement", "Industry news and sector data", "Payment behavior data (CBS)"],
+                    actions: ["Monitor 23 EWS signals continuously (payment behavior, GST trends, bureau changes, sector news)", "Calculate risk score for each account (1–100) updated monthly", "Detect covenant breaches and near-breaches (>80% threshold)", "Generate proactive alerts with reasoning chain and intervention recommendations", "Produce monthly portfolio health report for CRO", "Track intervention outcomes to improve future recommendations"],
+                    outputs: ["Real-time risk score per account", "EWS alerts with reasoning chain and severity (Watch/Alert/Critical)", "Covenant compliance tracker", "Monthly portfolio health report", "Intervention recommendation with historical outcome data"],
+                    failures: ["Data feed interruption → alert ops, use last known data with staleness flag", "False positive alert rate >15% → retrain model, alert CRO", "Covenant data not available → flag account for manual covenant check"],
+                    hitl: ["All Critical-level EWS alerts (mandatory CRO review)", "Accounts with conflicting signals (some positive, some negative)", "Intervention strategy selection (agent recommends, human decides)"],
+                    integrations: ["Account Aggregator (AA) framework", "GSTN API", "Bureau APIs", "CBS (payment data)", "News/sector data API", "CRM (RM notification)"],
+                  },
+                  {
+                    num: "09", name: "Workout & Recovery Support Agent", color: "border-orange-500/30 bg-orange-500/3", badge: "amber",
+                    goal: "Provide structured, data-driven workout strategy recommendations for stressed accounts, improving recovery rates from the industry average of 64% to ≥80% through systematic application of proven strategies.",
+                    inputs: ["Stressed account profile (financial data, collateral, guarantors)", "Historical workout outcomes database (comparable cases)", "Current market value of collateral", "Legal status and documentation", "Borrower's current financial position"],
+                    actions: ["Classify stress type (liquidity, operational, structural, sector-wide)", "Search comparable cases in historical database (≥100 cases minimum)", "Generate 3 workout strategy options with historical success rates", "Model recovery scenarios under each strategy", "Track compliance with restructured terms", "Generate restructuring documentation from approved strategy"],
+                    outputs: ["Stress classification with evidence", "3 workout strategy options with historical success rates and recovery projections", "Restructuring documentation (if strategy selected)", "Compliance tracking schedule for restructured terms"],
+                    failures: ["Insufficient comparable cases (<10) → flag, recommend external advisor", "Collateral value unavailable → flag for fresh valuation before strategy selection", "Legal complications → escalate to legal team with case summary"],
+                    hitl: ["All workout strategy selections (agent recommends, credit committee decides)", "Collateral disposal decisions", "Legal action initiation", "Write-off recommendations"],
+                    integrations: ["Historical outcomes database", "Collateral valuation API", "Legal case management system", "CBS (NPA classification)", "Provisioning system"],
+                  },
+                ].map((agent) => (
+                  <div key={agent.num} className={`rounded-xl border p-5 ${agent.color}`}>
+                    <div className="flex items-center gap-3 mb-4">
+                      <Tag color={agent.badge}>Agent {agent.num}</Tag>
+                      <span className="text-sm font-bold text-foreground">{agent.name}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed mb-4 border-l-2 border-primary/30 pl-3">{agent.goal}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {[
+                        { label: "Inputs", items: agent.inputs, color: "text-blue-400" },
+                        { label: "Actions", items: agent.actions, color: "text-emerald-400" },
+                        { label: "Outputs", items: agent.outputs, color: "text-purple-400" },
+                        { label: "Failure Modes", items: agent.failures, color: "text-red-400" },
+                        { label: "Human-in-the-Loop", items: agent.hitl, color: "text-amber-400" },
+                        { label: "System Integrations", items: agent.integrations, color: "text-cyan-400" },
+                      ].map(col => (
+                        <div key={col.label} className="bg-white/3 rounded-lg p-3">
+                          <div className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${col.color}`}>{col.label}</div>
+                          <ul className="space-y-1">
+                            {col.items.map(item => (
+                              <li key={item} className="flex items-start gap-1.5">
+                                <div className={`w-1 h-1 rounded-full flex-shrink-0 mt-1.5 bg-current ${col.color}`} />
+                                <span className="text-[10px] text-muted-foreground leading-relaxed">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* ── S13: Non-Functional Requirements ── */}
+            <section id="s13" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="13" label="Non-Functional Requirements" icon={Shield}
+                description="Production-grade NFRs covering security, performance, availability, scalability, observability, and compliance. All thresholds are based on enterprise banking standards and RBI IT framework requirements." />
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InsightBox title="Performance & Latency" color="blue">
+                    <DataTable
+                      headers={["Operation", "P50", "P95", "P99"]}
+                      rows={[
+                        ["Document classification", "<3s", "<8s", "<15s"],
+                        ["Financial spreading (per doc)", "<30s", "<90s", "<180s"],
+                        ["Credit memo generation", "<60s", "<180s", "<300s"],
+                        ["EWS alert generation", "<5 min", "<15 min", "<30 min"],
+                        ["Compliance check (full)", "<10 min", "<30 min", "<60 min"],
+                        ["DOA routing", "<5 min", "<15 min", "<30 min"],
+                        ["Dashboard load", "<1s", "<2s", "<3s"],
+                        ["API response (CRUD)", "<200ms", "<500ms", "<1s"],
+                      ]}
+                    />
+                  </InsightBox>
+                  <InsightBox title="Availability & Resilience" color="green">
+                    <DataTable
+                      headers={["Component", "SLA", "RTO", "RPO"]}
+                      rows={[
+                        ["Core platform", "99.9% uptime", "< 1 hour", "< 15 min"],
+                        ["AI agents", "99.5% uptime", "< 2 hours", "< 30 min"],
+                        ["Document storage", "99.99% uptime", "< 30 min", "< 5 min"],
+                        ["CBS integration", "99.5% uptime", "< 2 hours", "< 1 hour"],
+                        ["Monitoring agent", "99.9% uptime", "< 1 hour", "< 15 min"],
+                      ]}
+                    />
+                  </InsightBox>
+                </div>
+                <DataTable
+                  headers={["NFR Category", "Requirement", "Standard/Basis", "Measurement"]}
+                  rows={[
+                    ["Security — Data at Rest", "AES-256 encryption for all PII and financial data", "RBI IT Framework 2021", "Annual penetration test"],
+                    ["Security — Data in Transit", "TLS 1.3 minimum for all API communications", "RBI IT Framework 2021", "Continuous monitoring"],
+                    ["Security — Access Control", "Role-based access control (RBAC) with MFA for all users", "ISO 27001", "Quarterly access review"],
+                    ["Security — Audit Trail", "Immutable audit log for every AI action and user action", "RBI Audit Guidelines", "Log integrity check monthly"],
+                    ["Scalability", "Horizontal scaling to 10× peak load within 5 minutes", "Enterprise standard", "Load test quarterly"],
+                    ["Observability", "Full distributed tracing for all agent actions; alert on P95 latency breach", "SRE best practices", "Real-time dashboard"],
+                    ["AI Model Governance", "Model performance monitored monthly; retrain trigger if accuracy drops >5%", "SR 11-7 (Fed Reserve)", "Monthly model report"],
+                    ["Data Residency", "All data stored in India (RBI data localization requirement)", "RBI circular 2018", "Annual compliance audit"],
+                    ["Disaster Recovery", "Active-passive DR with <1 hour failover; DR drill quarterly", "RBI BCP Guidelines", "Quarterly DR drill"],
+                    ["Privacy", "DPDP Act 2023 compliance; data minimization; consent management", "DPDP Act 2023", "Annual privacy audit"],
+                  ]}
+                />
+              </div>
+            </section>
+
+            {/* ── S14: System Architecture ── */}
+            <section id="s14" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="14" label="System Architecture" icon={Server}
+                description="A 5-layer modular architecture designed for enterprise banking: presentation layer, agent orchestration layer, AI/ML services layer, integration layer, and data layer. Each layer is independently scalable and replaceable." />
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  {[
+                    {
+                      layer: "Layer 5", name: "Presentation Layer", color: "border-blue-500/30 bg-blue-500/5", badge: "blue",
+                      components: ["React 19 + TypeScript SPA", "Role-based UI (RM / Underwriter / CRO / COO / CXO)", "Real-time agent activity feed (WebSocket)", "Mobile-responsive dashboard", "Accessibility: WCAG 2.1 AA compliant"],
+                      tech: "React 19, Tailwind CSS 4, shadcn/ui, Recharts, WebSocket"
+                    },
+                    {
+                      layer: "Layer 4", name: "Agent Orchestration Layer", color: "border-purple-500/30 bg-purple-500/5", badge: "purple",
+                      components: ["Agent Router — determines which agents to invoke for each deal event", "Context Manager — maintains deal state across agent handoffs", "Human-in-the-Loop Gateway — intercepts agent outputs requiring human review", "Audit Logger — immutable log of every agent action", "Retry & Fallback Manager — handles agent failures gracefully"],
+                      tech: "Node.js, tRPC, Redis (state), PostgreSQL (audit log)"
+                    },
+                    {
+                      layer: "Layer 3", name: "AI / ML Services Layer", color: "border-emerald-500/30 bg-emerald-500/5", badge: "green",
+                      components: ["Document Understanding Service (LLM vision — GPT-4o/Claude 3.5)", "Financial Spreading Service (structured extraction + ratio calculation)", "Credit Analysis Service (memo generation + risk scoring)", "EWS Model (gradient boosting + LLM narrative generation)", "Compliance Check Engine (rule-based + LLM policy interpretation)"],
+                      tech: "LLM APIs (OpenAI/Anthropic), Python ML services, scikit-learn, pandas"
+                    },
+                    {
+                      layer: "Layer 2", name: "Integration Layer", color: "border-amber-500/30 bg-amber-500/5", badge: "amber",
+                      components: ["CBS Connector (Finacle/Temenos/Flexcube)", "Bureau API Gateway (CIBIL, Experian, Equifax)", "GSTN API Connector", "Account Aggregator (AA) Framework Connector", "Regulatory Database Connector (RBI, FATF, UN sanctions)"],
+                      tech: "REST/SOAP adapters, API gateway (Kong), message queue (Kafka)"
+                    },
+                    {
+                      layer: "Layer 1", name: "Data Layer", color: "border-cyan-500/30 bg-cyan-500/5", badge: "cyan",
+                      components: ["Document Store (S3 — encrypted, versioned)", "Transactional DB (MySQL/TiDB — deal data, user data)", "Analytics DB (ClickHouse — portfolio analytics, model training data)", "Vector Store (Pinecone — document embeddings for semantic search)", "Cache (Redis — session state, agent context)"],
+                      tech: "AWS S3, MySQL/TiDB, ClickHouse, Pinecone, Redis"
+                    },
+                  ].map(l => (
+                    <div key={l.layer} className={`rounded-xl border p-4 ${l.color}`}>
+                      <div className="flex items-center gap-3 mb-3">
+                        <Tag color={l.badge}>{l.layer}</Tag>
+                        <span className="text-sm font-bold text-foreground">{l.name}</span>
+                        <span className="text-[10px] text-muted-foreground ml-auto font-mono">{l.tech}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {l.components.map(c => (
+                          <div key={c} className="flex items-center gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
+                            <span className="text-[11px] text-muted-foreground">{c}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <InsightBox title="Key Architectural Decisions & Rationale" color="blue">
+                  <DataTable
+                    headers={["Decision", "Rationale", "Trade-off"]}
+                    rows={[
+                      ["Modular agents, not monolithic AI", "Each agent can be updated, retrained, or replaced independently without affecting others", "Higher orchestration complexity"],
+                      ["Human-in-the-loop gateway as a separate layer", "Ensures human accountability is enforced architecturally, not just by policy", "Adds latency to agent outputs"],
+                      ["Immutable audit log at orchestration layer", "Every AI action is logged before it reaches the UI — cannot be altered by any user", "Storage cost; requires log rotation strategy"],
+                      ["CBS integration via adapter pattern", "Banks have different CBS (Finacle, Temenos, Flexcube) — adapter pattern allows one integration per CBS type", "Initial integration effort per CBS"],
+                      ["LLM APIs (not self-hosted models)", "State-of-the-art performance; no GPU infrastructure required; faster time-to-market", "Data privacy risk mitigated by data masking before LLM calls"],
+                    ]}
+                  />
+                </InsightBox>
+              </div>
+            </section>
+
+            {/* ── S15: Orchestration & Data Flow ── */}
+            <section id="s15" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="15" label="Orchestration & Data Flow" icon={Network}
+                description="The agent orchestration pattern ensures that agents work in sequence and in parallel as appropriate, with the Human-in-the-Loop Gateway intercepting outputs that require human review before proceeding." />
+              <div className="space-y-6">
+                <InsightBox title="Standard Deal Orchestration Flow (New SME Loan)" color="blue">
+                  <div className="space-y-2 mt-2">
+                    {[
+                      { step: "1", action: "Deal Created", agent: "Platform", output: "Deal ID, initial parameters stored", parallel: false },
+                      { step: "2", action: "Eligibility Check", agent: "Intake Agent", output: "Eligibility score, pre-filled application, document checklist", parallel: false },
+                      { step: "3a", action: "Document Classification", agent: "Document Orchestration Agent", output: "Classified package, completeness report", parallel: true },
+                      { step: "3b", action: "Bureau/GST Enrichment", agent: "Intake Agent (async)", output: "Enriched borrower profile", parallel: true },
+                      { step: "4", action: "Financial Spreading", agent: "Spreading Agent", output: "Spreading template, ratios, anomaly flags", parallel: false },
+                      { step: "5a", action: "Credit Memo Generation", agent: "Underwriting Copilot", output: "Credit memo draft with citations", parallel: true },
+                      { step: "5b", action: "Compliance Check", agent: "Compliance Agent", output: "47-point compliance report", parallel: true },
+                      { step: "6", action: "HITL: Underwriter Review", agent: "Human Gateway", output: "Reviewed/edited credit memo; compliance flags resolved", parallel: false },
+                      { step: "7", action: "DOA Routing", agent: "Approval Flow Agent", output: "Routed to correct approver with deal package", parallel: false },
+                      { step: "8", action: "HITL: Credit Decision", agent: "Human Gateway", output: "Approved/Declined/Conditional with reason", parallel: false },
+                      { step: "9", action: "Loan Booking", agent: "Closing Agent", output: "CBS booking confirmation, documentation package", parallel: false },
+                      { step: "10", action: "Monitoring Activated", agent: "Monitoring Agent", output: "EWS baseline established; monitoring schedule set", parallel: false },
+                    ].map(s => (
+                      <div key={s.step} className={`flex items-start gap-3 p-2.5 rounded-lg ${s.agent === "Human Gateway" ? "bg-amber-500/10 border border-amber-500/20" : "bg-white/3"}`}>
+                        <span className="text-[10px] font-mono text-muted-foreground/60 w-5 flex-shrink-0 mt-0.5">{s.step}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[11px] font-semibold text-foreground">{s.action}</span>
+                            <Tag color={s.agent === "Human Gateway" ? "amber" : "gray"}>{s.agent}</Tag>
+                            {s.parallel && <Tag color="cyan">Parallel</Tag>}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground mt-0.5">{s.output}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </InsightBox>
+                <InsightBox title="Data Masking Before LLM Calls" color="amber">
+                  <p className="text-[11px] text-muted-foreground leading-relaxed mt-1">Before any data is sent to external LLM APIs, the platform applies a data masking layer that replaces PII (borrower name, PAN, account numbers, addresses) with anonymized tokens. The LLM processes anonymized data; the platform re-maps tokens to real values before displaying results to users. This ensures LLM providers never receive identifiable customer data, satisfying RBI data privacy requirements and DPDP Act 2023 obligations.</p>
+                </InsightBox>
+              </div>
+            </section>
+
+            {/* ── S16: API Integrations ── */}
+            <section id="s16" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="16" label="API Integrations" icon={Globe}
+                description="The platform integrates with 12 external systems across 5 categories. All integrations use standard API patterns with retry logic, circuit breakers, and graceful degradation to ensure platform resilience." />
+              <div className="space-y-4">
+                <DataTable
+                  headers={["Integration", "Category", "Data Exchanged", "Frequency", "Fallback"]}
+                  rows={[
+                    ["CIBIL / Experian", "Credit Bureau", "Credit score, repayment history, existing obligations", "Per application", "Manual bureau report upload"],
+                    ["GSTN API", "Tax Authority", "GST filing history, turnover, compliance status", "Per application + monthly monitoring", "Borrower-provided GST returns"],
+                    ["Account Aggregator (AA)", "Open Banking", "Bank statements, transaction history (consent-based)", "Per application + monthly", "Manual bank statement upload"],
+                    ["Core Banking System (CBS)", "Internal", "Account data, payment history, existing facilities", "Real-time (event-driven)", "Manual CBS extract"],
+                    ["Finacle / Temenos / Flexcube", "Loan Booking", "Loan account creation, disbursement instruction", "Per deal closing", "Manual booking with ops review"],
+                    ["LexisNexis / Refinitiv", "AML/KYC", "Sanctions screening, PEP check, adverse media", "Per application + quarterly refresh", "Manual screening (halt deal)"],
+                    ["RBI Regulatory Database", "Compliance", "Sector exposure limits, regulatory circulars", "Daily sync", "Cached last-known data + alert"],
+                    ["OpenAI / Anthropic API", "AI/LLM", "Document understanding, memo generation, analysis", "Per agent invocation", "Fallback to secondary LLM provider"],
+                    ["Collateral Valuation API", "Valuation", "Market value of property, equipment, securities", "Per application + annual refresh", "Manual valuation report"],
+                    ["News / Sector Data API", "Market Intelligence", "Sector news, borrower news, macro indicators", "Daily", "Manual news monitoring"],
+                    ["Digital Signature Platform", "Legal", "Document signing, signature verification", "Per closing", "Wet signature with ops override"],
+                    ["Email / SMS Gateway", "Communication", "Borrower notifications, RM alerts, approver routing", "Event-driven", "Manual communication"],
+                  ]}
+                />
+                <InsightBox title="Integration Resilience Principles" color="blue">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
+                    {[
+                      { title: "Circuit Breaker Pattern", body: "If an external API fails 3 times in 60 seconds, the circuit breaker opens and the platform falls back to the defined fallback. The circuit resets after 5 minutes." },
+                      { title: "Retry with Exponential Backoff", body: "All API calls retry up to 3 times with exponential backoff (1s, 2s, 4s). Retries are logged and counted toward circuit breaker threshold." },
+                      { title: "Graceful Degradation", body: "Every integration has a defined fallback that allows the deal to continue (with a flag) if the integration is unavailable. No single integration failure halts the entire deal." },
+                    ].map(r => (
+                      <div key={r.title} className="border border-border/50 rounded-lg p-3">
+                        <div className="text-[11px] font-bold text-foreground mb-1">{r.title}</div>
+                        <div className="text-[10px] text-muted-foreground leading-relaxed">{r.body}</div>
+                      </div>
+                    ))}
+                  </div>
+                </InsightBox>
+              </div>
+            </section>
+
+            {/* ── S17: KPIs & Success Metrics ── */}
+            <section id="s17" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="17" label="KPIs & Success Metrics" icon={BarChart2}
+                description="A 3-tier KPI framework: Board-level business outcomes, Management-level operational metrics, and Product-quality AI performance metrics. All baselines are sourced from primary research and industry benchmarks." />
+              <div className="space-y-6">
+                <InsightBox title="Tier 1: Board-Level Business Outcomes" color="blue">
+                  <DataTable
+                    headers={["KPI", "Baseline", "Phase 1 Target", "Phase 3 Target", "Source"]}
+                    rows={[
+                      ["Time-to-decision (SME)", "21 days", "7 days (−67%)", "3 days (−86%)", "McKinsey, 2024"],
+                      ["Cost per loan originated", "$11,319", "$6,500 (−43%)", "$3,200 (−72%)", "Oliver Wyman, 2024"],
+                      ["Loans per underwriter per month", "8–10", "18–22 (+120%)", "30–35 (+250%)", "Primary Research"],
+                      ["GNPA ratio (portfolio)", "3.8%", "3.2% (−16%)", "2.5% (−34%)", "RBI Annual Report, 2024"],
+                      ["Cost-to-income ratio", "52%", "47% (−5pp)", "42% (−10pp)", "Oliver Wyman, 2024"],
+                      ["Loan book growth (same headcount)", "Baseline", "+25% YoY", "+60% YoY", "Modeled"],
+                    ]}
+                  />
+                </InsightBox>
+                <InsightBox title="Tier 2: Management-Level Operational Metrics" color="green">
+                  <DataTable
+                    headers={["KPI", "Baseline", "Target", "Measurement Frequency"]}
+                    rows={[
+                      ["Document processing time", "3–5 days", "<2 hours", "Per deal"],
+                      ["Financial spreading time", "4–6 hours", "<30 minutes", "Per deal"],
+                      ["Credit memo drafting time", "8–12 hours", "<45 min (review)", "Per deal"],
+                      ["Compliance check time", "2–3 days", "<1 hour", "Per deal"],
+                      ["DOA routing time", "3–5 days", "<4 hours", "Per deal"],
+                      ["EWS lead time", "0 days (reactive)", "45 days", "Monthly"],
+                      ["Loan booking error rate", "8%", "<0.5%", "Monthly"],
+                      ["Human override rate (AI outputs)", "N/A", "<15% (target)", "Weekly"],
+                    ]}
+                  />
+                </InsightBox>
+                <InsightBox title="Tier 3: AI Model Quality Metrics" color="purple">
+                  <DataTable
+                    headers={["Model / Agent", "Metric", "Minimum Threshold", "Target", "Retrain Trigger"]}
+                    rows={[
+                      ["Document Classification", "Accuracy", "90%", "≥94%", "Accuracy drops below 88%"],
+                      ["Financial Spreading", "Field-level accuracy", "85%", "≥92%", "Accuracy drops below 82%"],
+                      ["Credit Memo Quality", "Blind review score", "7.5/10", "≥8.5/10", "Score drops below 7.0"],
+                      ["EWS Model", "Precision / Recall", "80% / 75%", "85% / 82%", "Recall drops below 70%"],
+                      ["Compliance Checks", "False negative rate", "0%", "0%", "Any false negative"],
+                      ["Underwriting Copilot", "Recommendation accuracy", "N/A", "≥80% agreement with human", "Agreement drops below 70%"],
+                    ]}
+                  />
+                </InsightBox>
+              </div>
+            </section>
+
+            {/* ── S18: Risks & Mitigations ── */}
+            <section id="s18" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="18" label="Risks & Mitigations" icon={AlertTriangle}
+                description="A comprehensive risk register covering AI/model risks, regulatory risks, integration risks, adoption risks, and security risks. Each risk has a defined owner, probability, impact, and specific mitigation strategy." />
+              <div className="space-y-4">
+                <DataTable
+                  headers={["Risk", "Category", "Probability", "Impact", "Mitigation", "Owner"]}
+                  rows={[
+                    ["AI model produces biased credit recommendations", <Tag color="red">Model Risk</Tag>, <Tag color="amber">Medium</Tag>, <Tag color="red">Critical</Tag>, "Fairness testing on protected attributes quarterly; human review of all recommendations; bias audit by independent third party annually", "CRO + Model Risk"],
+                    ["LLM hallucination in credit memo", <Tag color="red">Model Risk</Tag>, <Tag color="amber">Medium</Tag>, <Tag color="red">High</Tag>, "Every figure must be cited to source document; underwriter reviews all figures before approval; confidence score shown; hallucination rate monitored", "Product + Underwriting"],
+                    ["RBI issues guidance restricting AI in credit decisions", <Tag color="amber">Regulatory Risk</Tag>, <Tag color="amber">Medium</Tag>, <Tag color="red">High</Tag>, "Platform designed as AI-assisted, not AI-decided; humans approve all credit decisions; full audit trail; proactive engagement with RBI on AI governance", "Compliance + CXO"],
+                    ["CBS integration failure halts loan booking", <Tag color="amber">Integration Risk</Tag>, <Tag color="green">Low</Tag>, <Tag color="red">High</Tag>, "Circuit breaker pattern; manual booking fallback with ops team; SLA monitoring; CBS vendor SLA of 99.5% uptime", "Technology + Ops"],
+                    ["User adoption failure — RMs/underwriters resist AI", <Tag color="amber">Adoption Risk</Tag>, <Tag color="amber">Medium</Tag>, <Tag color="amber">High</Tag>, "Change management program; phased rollout starting with willing early adopters; AI framed as assistant not replacement; training and certification program", "Product + HR"],
+                    ["Data privacy breach (customer financial data)", <Tag color="red">Security Risk</Tag>, <Tag color="green">Low</Tag>, <Tag color="red">Critical</Tag>, "AES-256 encryption; data masking before LLM calls; zero-trust architecture; annual penetration testing; DPDP Act 2023 compliance", "CISO + Technology"],
+                    ["Model drift reduces AI accuracy over time", <Tag color="red">Model Risk</Tag>, <Tag color="amber">Medium</Tag>, <Tag color="amber">High</Tag>, "Monthly model performance monitoring; automatic retrain trigger if accuracy drops >5%; human override rate as leading indicator of drift", "Data Science + CRO"],
+                    ["Vendor dependency on single LLM provider", <Tag color="amber">Technology Risk</Tag>, <Tag color="green">Low</Tag>, <Tag color="amber">Medium</Tag>, "Multi-provider architecture (OpenAI + Anthropic as primary/fallback); abstraction layer allows provider switching in <1 day", "Technology"],
+                    ["Concentration risk: AI recommends similar deals", <Tag color="red">Credit Risk</Tag>, <Tag color="amber">Medium</Tag>, <Tag color="red">High</Tag>, "Portfolio concentration limits enforced at Compliance Agent level; CRO dashboard shows sector/geography concentration; human override required for concentration breaches", "CRO"],
+                    ["Audit trail manipulation by internal actors", <Tag color="red">Operational Risk</Tag>, <Tag color="green">Low</Tag>, <Tag color="red">Critical</Tag>, "Immutable audit log (write-once, append-only); log integrity monitoring; access to audit log restricted to compliance and audit roles only", "CISO + Compliance"],
+                  ]}
+                />
+              </div>
+            </section>
+
+            {/* ── S19: Roadmap & Milestones ── */}
+            <section id="s19" className="px-8 py-10 border-b border-border">
+              <SectionHeader num="19" label="Roadmap & Milestones" icon={Calendar}
+                description="An 18-month, 3-phase rollout plan with clear milestones, success criteria, and go/no-go gates. Each phase is justified by risk, complexity, data readiness, and business impact." />
+              <div className="space-y-6">
+                {[
+                  {
+                    phase: "Phase 1", name: "Foundation & Quick Wins", duration: "Months 1–6", color: "border-blue-500/30 bg-blue-500/5", badge: "blue",
+                    objective: "Deploy the 4 highest-impact, lowest-risk agents. Demonstrate measurable ROI within 6 months to build organizational confidence and secure Phase 2 funding.",
+                    agents: ["Document Orchestration Agent", "Document Understanding & Spreading Agent", "Compliance & Policy Agent", "Approval Flow Agent"],
+                    milestones: [
+                      { month: "M1–2", milestone: "Platform infrastructure, CBS integration, document store, and audit log deployed" },
+                      { month: "M2–3", milestone: "Document Orchestration Agent in production (pilot: 50 deals)" },
+                      { month: "M3–4", milestone: "Spreading Agent in production; A/B test T-01 and T-02 running" },
+                      { month: "M4–5", milestone: "Compliance Agent and Approval Flow Agent in production" },
+                      { month: "M5–6", milestone: "Full Phase 1 rollout; A/B tests concluded; Phase 2 go/no-go review" },
+                    ],
+                    kpis: ["Document processing time: 3–5 days → <2 hours", "Spreading time: 4–6 hrs → <30 min", "Compliance check time: 2–3 days → <1 hour", "DOA routing time: 3–5 days → <4 hours"],
+                    gate: "Phase 2 proceeds if: (1) all 4 Phase 1 agents meet minimum accuracy thresholds, (2) user adoption >70% of target users, (3) no regulatory objections raised"
+                  },
+                  {
+                    phase: "Phase 2", name: "Intelligence & Automation", duration: "Months 7–12", color: "border-emerald-500/30 bg-emerald-500/5", badge: "green",
+                    objective: "Deploy the 3 intelligence-heavy agents that require Phase 1 data as training input. Introduce the Underwriting Copilot and Monitoring Agent to attack the two highest-value problems: credit memo drafting and NPL prevention.",
+                    agents: ["Intake & Eligibility Agent", "Underwriting Copilot Agent", "Monitoring & Early Warning Agent"],
+                    milestones: [
+                      { month: "M7–8", milestone: "Intake Agent in production; bureau/GST/AA integrations live" },
+                      { month: "M8–10", milestone: "Underwriting Copilot in production; credit memo A/B test T-03 running" },
+                      { month: "M10–12", milestone: "Monitoring Agent in production; EWS A/B test T-04 running on 500 accounts" },
+                    ],
+                    kpis: ["Credit memo drafting: 8–12 hrs → <45 min review", "Time-to-decision: 21 days → 7 days", "EWS lead time: 0 days → 30+ days", "Cost per loan: $11,319 → $6,500"],
+                    gate: "Phase 3 proceeds if: (1) Underwriting Copilot achieves ≥80% agreement with human decisions, (2) EWS model achieves ≥75% recall, (3) no material credit quality deterioration observed"
+                  },
+                  {
+                    phase: "Phase 3", name: "Full Lifecycle & Learning", duration: "Months 13–18", color: "border-purple-500/30 bg-purple-500/5", badge: "purple",
+                    objective: "Complete the full agentic lifecycle with Closing & Booking and Workout agents. Introduce the learned underwriting model that improves with every deal outcome. Achieve the full 3-year ROI target.",
+                    agents: ["Closing & Booking Agent", "Workout & Recovery Support Agent", "Learned Underwriting Model (cross-agent)"],
+                    milestones: [
+                      { month: "M13–14", milestone: "Closing & Booking Agent in production; CBS auto-booking live" },
+                      { month: "M14–16", milestone: "Workout Agent in production; historical outcomes database populated" },
+                      { month: "M16–18", milestone: "Learned underwriting model trained on 12 months of outcomes data; deployed across all agents" },
+                    ],
+                    kpis: ["Loan booking error rate: 8% → <0.5%", "Recovery rate on stressed accounts: 64% → ≥80%", "Time-to-decision: 7 days → 3 days", "Cost per loan: $6,500 → $3,200", "GNPA ratio: 3.8% → 2.5%"],
+                    gate: "Full platform declared production-ready when all 9 agents are in production and all Tier 1 KPI Phase 3 targets are met"
+                  },
+                ].map(p => (
+                  <div key={p.phase} className={`rounded-xl border p-5 ${p.color}`}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <Tag color={p.badge}>{p.phase}</Tag>
+                      <span className="text-sm font-bold text-foreground">{p.name}</span>
+                      <span className="text-[11px] text-muted-foreground ml-auto">{p.duration}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed mb-4">{p.objective}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Agents Deployed</div>
+                        <ul className="space-y-1">{p.agents.map(a => <li key={a} className="flex items-center gap-1.5"><Cpu className="w-3 h-3 text-primary flex-shrink-0" /><span className="text-[11px] text-muted-foreground">{a}</span></li>)}</ul>
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Key Milestones</div>
+                        <ul className="space-y-1">{p.milestones.map(m => <li key={m.month} className="flex items-start gap-1.5"><span className="text-[10px] font-mono text-muted-foreground/60 flex-shrink-0 w-8">{m.month}</span><span className="text-[11px] text-muted-foreground">{m.milestone}</span></li>)}</ul>
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Phase KPI Targets</div>
+                        <ul className="space-y-1">{p.kpis.map(k => <li key={k} className="flex items-start gap-1.5"><TrendingUp className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{k}</span></li>)}</ul>
+                      </div>
+                    </div>
+                    <div className="bg-white/3 rounded-lg p-3 border border-border/50">
+                      <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Go/No-Go Gate: </span>
+                      <span className="text-[11px] text-muted-foreground">{p.gate}</span>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Competitive Differentiation */}
+                <div className="mt-8">
+                  <div className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                    <Award className="w-4 h-4 text-primary" />
+                    Competitive Differentiation vs. Traditional LOS
+                  </div>
+                  <DataTable
+                    headers={["Dimension", "Traditional LOS", "Agentic AI Platform", "Advantage"]}
+                    rows={[
+                      ["Decision Speed", "21 days average", "3–5 days (Phase 3)", <Tag color="green">7× faster</Tag>],
+                      ["Document Processing", "Manual, 3–5 days", "AI, <2 hours", <Tag color="green">20× faster</Tag>],
+                      ["Credit Analysis", "Static scorecards, manual memo", "Learned model + AI draft with citations", <Tag color="green">Qualitative leap</Tag>],
+                      ["Portfolio Monitoring", "Quarterly, reactive", "Real-time, proactive, 45-day EWS", <Tag color="green">Structural advantage</Tag>],
+                      ["Explainability", "Black box or no AI", "Every output cited and auditable", <Tag color="green">Regulatory advantage</Tag>],
+                      ["Scalability", "1:1 (headcount:volume)", "1:5+ (one underwriter, 5× volume)", <Tag color="green">Operating leverage</Tag>],
+                      ["Learning", "Static rules, manual updates", "Improves with every deal outcome", <Tag color="green">Compounding moat</Tag>],
+                      ["Integration", "Point-to-point, brittle", "Adapter pattern, resilient, multi-CBS", <Tag color="green">Deployment flexibility</Tag>],
+                      ["Human Control", "Humans do everything", "AI does the work; humans make decisions", <Tag color="green">Best of both worlds</Tag>],
+                    ]}
+                  />
+                </div>
+
+                {/* Citations Appendix */}
+                <div className="mt-8 rounded-xl border border-border bg-white/2 p-5">
+                  <div className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-muted-foreground" />
+                    Citations & Sources
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[
+                      "[1] McKinsey & Company. \"The $1 Trillion Commercial Lending Opportunity.\" McKinsey Global Institute, 2024.",
+                      "[2] Oliver Wyman. \"The Future of Commercial Lending: AI and Automation.\" Financial Services Report, 2024.",
+                      "[3] Deloitte. \"Agentic AI in Banking: From Pilot to Production.\" Deloitte Insights, 2024.",
+                      "[4] Federal Reserve. \"Report on Employer Firms: Small Business Credit Survey.\" Federal Reserve Banks, 2024.",
+                      "[5] IFC / World Bank. \"MSME Finance Gap Report.\" International Finance Corporation, 2024.",
+                      "[6] RBI. \"Annual Report on Trend and Progress of Banking in India.\" Reserve Bank of India, 2024.",
+                      "[7] Accenture. \"Banking Technology Vision 2024: AI and the Future of Financial Services.\" Accenture, 2024.",
+                      "[8] S&P Global. \"Commercial Real Estate and Workout Recovery Rates.\" S&P Global Market Intelligence, 2024.",
+                      "[9] TIMVERO. \"How AI and Automation Are Transforming Lending.\" TIMVERO Research, 2024.",
+                      "[10] Primary Research. \"47 Practitioner Interviews Across 12 Indian Financial Institutions.\" Conducted 2024.",
+                    ].map(c => (
+                      <div key={c} className="text-[10px] text-muted-foreground/70 leading-relaxed font-mono">{c}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+
           </div>
-        </div>
+        </main>
       </div>
     </LendingLayout>
   );
 }
+
