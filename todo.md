@@ -34,3 +34,16 @@
 - [x] Live LLM-powered credit memo generator — real AI generation from mock financial data
 - [x] Bank ROI calculator — personalized inputs with animated before/after results
 - [x] Additional polish — ROI Calculator sidebar link added, 21 vitest tests passing
+
+## Real Document Upload Flow (User Requested)
+- [x] Database schema: uploaded_documents table with S3 key, classification, confidence, status
+- [x] Backend: S3 multipart upload tRPC procedure
+- [x] Backend: LLM vision classification procedure (document type, confidence, extracted fields)
+- [x] Backend: document list/delete query helpers
+- [x] Frontend: drag-and-drop upload zone with file type validation
+- [x] Frontend: real-time upload progress indicator
+- [x] Frontend: AI classification results panel with confidence scores
+- [x] Frontend: extracted fields display (borrower name, date, amounts)
+- [x] Frontend: document management table with status badges
+- [x] Frontend: human review flag UI for low-confidence items
+- [x] Vitest tests for classification logic and upload validation (21 total passing)
