@@ -161,9 +161,9 @@ export default function PRD() {
 
   return (
     <LendingLayout>
-      <div className="flex gap-0 min-h-screen">
+      <div className="prd-page flex gap-0 min-h-screen">
         {/* ── Sticky TOC Sidebar ── */}
-        <aside className={`sticky top-0 h-screen overflow-y-auto flex-shrink-0 border-r border-border bg-[oklch(0.11_0.013_240)] backdrop-blur transition-all duration-300 ${tocOpen ? "w-64" : "w-10"}`}>
+        <aside className={`prd-toc sticky top-0 h-screen overflow-y-auto flex-shrink-0 border-r border-border bg-[oklch(0.11_0.013_240)] backdrop-blur transition-all duration-300 ${tocOpen ? "w-64" : "w-10"}`}>
           <button
             onClick={() => setTocOpen(!tocOpen)}
             className="w-full flex items-center justify-between px-3 py-3.5 border-b border-border hover:bg-white/5 transition-colors"

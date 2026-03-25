@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@600;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -63,7 +63,7 @@
   --secondary: oklch(0.18 0.02 240);
   --secondary-foreground: oklch(0.85 0.01 240);
   --muted: oklch(0.16 0.015 240);
-  --muted-foreground: oklch(0.55 0.01 240);
+  --muted-foreground: oklch(0.65 0.01 240);
   --accent: oklch(0.6 0.18 220);
   --accent-foreground: oklch(0.09 0.01 240);
   --destructive: oklch(0.62 0.22 25);
@@ -87,7 +87,10 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    font-optical-sizing: auto;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -228,3 +231,28 @@
   /* Progress glow */
   .progress-glow { box-shadow: 0 0 8px oklch(0.6 0.18 220 / 0.5); }
 }
+  /* PRD page typography — larger, more readable sizes */
+  .prd-page {
+    font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+  }
+
+  .prd-page .text-\[10px\]  { font-size: 11.5px !important; }
+  .prd-page .text-\[11px\]  { font-size: 13px  !important; }
+  .prd-page .text-\[12px\]  { font-size: 13.5px !important; }
+  .prd-page .text-xs        { font-size: 13px  !important; }
+  .prd-page .text-sm        { font-size: 14.5px !important; }
+  .prd-page .text-base      { font-size: 16px  !important; }
+  .prd-page .text-lg        { font-size: 18px  !important; }
+  .prd-page .text-xl        { font-size: 20px  !important; }
+  .prd-page .text-2xl       { font-size: 24px  !important; }
+  .prd-page .text-3xl       { font-size: 28px  !important; }
+  .prd-page .text-4xl       { font-size: 34px  !important; }
+
+  /* Mono font for code/table numbers in PRD */
+  .prd-page .font-mono { font-family: 'JetBrains Mono', 'Fira Code', monospace !important; }
+
+  /* Tighter TOC sidebar text */
+  .prd-toc { font-family: 'DM Sans', 'Inter', system-ui, sans-serif; }
