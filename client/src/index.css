@@ -256,3 +256,17 @@
 
   /* Tighter TOC sidebar text */
   .prd-toc { font-family: 'DM Sans', 'Inter', system-ui, sans-serif; }
+
+  /* PRD main content width constraint for optimal readability */
+  .prd-main { max-width: 900px; margin-left: auto; margin-right: auto; }
+
+  /* Progress bar for PRD sections */
+  .prd-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, oklch(0.6 0.18 220), oklch(0.72 0.15 160));
+    z-index: 100;
+    transition: width 0.3s ease;
+  }

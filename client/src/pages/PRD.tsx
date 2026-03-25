@@ -159,8 +159,22 @@ export default function PRD() {
     document.getElementById(`s${num}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      setScrollProgress(scrolled);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <LendingLayout>
+      <div className="prd-progress-bar" style={{ width: `${scrollProgress}%` }} />
       <div className="prd-page flex gap-0 min-h-screen">
         {/* ── Sticky TOC Sidebar ── */}
         <aside className={`prd-toc sticky top-0 h-screen overflow-y-auto flex-shrink-0 border-r border-border bg-[oklch(0.11_0.013_240)] backdrop-blur transition-all duration-300 ${tocOpen ? "w-64" : "w-10"}`}>
@@ -222,7 +236,7 @@ export default function PRD() {
           </div>
 
           {/* Sections */}
-          <div className="px-8 py-10 space-y-16 max-w-5xl">
+          <div className="prd-main px-8 py-10 space-y-16">
 
             {/* ── S01: Executive Summary ── */}
             <section id="s01">
