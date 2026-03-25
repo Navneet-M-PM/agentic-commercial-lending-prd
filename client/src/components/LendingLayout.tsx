@@ -54,17 +54,19 @@ export default function LendingLayout({ children, title, subtitle }: LendingLayo
         `}
       >
         {/* Logo */}
-        <div className={`flex items-center gap-3 px-4 py-5 border-b border-border ${collapsed ? 'justify-center' : ''}`}>
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-            <Building2 className="w-4 h-4 text-primary-foreground" />
-          </div>
-          {!collapsed && (
-            <div>
-              <div className="text-sm font-bold text-foreground leading-tight">LendAI</div>
-              <div className="text-[10px] text-muted-foreground">Commercial Platform</div>
+        <Link href="/">
+          <div className={`flex items-center gap-3 px-4 py-5 border-b border-border cursor-pointer hover:bg-white/5 transition-colors ${collapsed ? 'justify-center' : ''}`}>
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-4 h-4 text-primary-foreground" />
             </div>
-          )}
-        </div>
+            {!collapsed && (
+              <div>
+                <div className="text-sm font-bold text-foreground leading-tight">LendAI</div>
+                <div className="text-[10px] text-muted-foreground">Commercial Platform</div>
+              </div>
+            )}
+          </div>
+        </Link>
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
