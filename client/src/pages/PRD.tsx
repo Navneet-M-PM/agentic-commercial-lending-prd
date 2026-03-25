@@ -30,7 +30,7 @@ function SectionHeader({ num, label, icon: Icon, description }: {
         <Icon className={`w-5 h-5 ${SECTION_COLOR[num] ?? "text-primary"}`} />
         <h2 className="text-xl font-bold text-foreground tracking-tight">{label}</h2>
       </div>
-      <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl">{description}</p>
+      <p className="text-sm text-foreground/75 leading-relaxed max-w-3xl">{description}</p>
       <div className={`mt-3 h-px bg-gradient-to-r from-transparent via-current to-transparent ${SECTION_COLOR[num] ?? "text-primary"} opacity-20`} />
     </div>
   );
@@ -61,7 +61,7 @@ function Stat({ value, label, source, color = "text-primary" }: {
     <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-1">
       <div className={`text-2xl font-black tabular-nums ${color}`}>{value}</div>
       <div className="text-xs font-semibold text-foreground leading-tight">{label}</div>
-      <div className="text-[10px] text-muted-foreground/60 leading-tight mt-auto pt-1 border-t border-border/50">{source}</div>
+      <div className="text-[10px] text-foreground/65/60 leading-tight mt-auto pt-1 border-t border-border/50">{source}</div>
     </div>
   );
 }
@@ -73,7 +73,7 @@ function DataTable({ headers, rows }: { headers: string[]; rows: (string | React
         <thead>
           <tr className="bg-white/3 border-b border-border">
             {headers.map((h) => (
-              <th key={h} className="px-3 py-2.5 text-left font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{h}</th>
+              <th key={h} className="px-3 py-2.5 text-left font-semibold text-foreground/70 uppercase tracking-wider whitespace-nowrap">{h}</th>
             ))}
           </tr>
         </thead>
@@ -81,7 +81,7 @@ function DataTable({ headers, rows }: { headers: string[]; rows: (string | React
           {rows.map((row, i) => (
             <tr key={i} className={`border-b border-border/50 last:border-0 ${i % 2 === 0 ? "" : "bg-white/1"} hover:bg-white/3 transition-colors`}>
               {row.map((cell, j) => (
-                <td key={j} className="px-3 py-2.5 text-muted-foreground leading-relaxed align-top">{cell}</td>
+                <td key={j} className="px-3 py-2.5 text-foreground/75 leading-relaxed align-top">{cell}</td>
               ))}
             </tr>
           ))}
@@ -163,24 +163,24 @@ export default function PRD() {
     <LendingLayout>
       <div className="flex gap-0 min-h-screen">
         {/* ── Sticky TOC Sidebar ── */}
-        <aside className={`sticky top-0 h-screen overflow-y-auto flex-shrink-0 border-r border-border bg-background/95 backdrop-blur transition-all duration-300 ${tocOpen ? "w-56" : "w-10"}`}>
+        <aside className={`sticky top-0 h-screen overflow-y-auto flex-shrink-0 border-r border-border bg-[oklch(0.11_0.013_240)] backdrop-blur transition-all duration-300 ${tocOpen ? "w-64" : "w-10"}`}>
           <button
             onClick={() => setTocOpen(!tocOpen)}
-            className="w-full flex items-center justify-between px-3 py-3 border-b border-border hover:bg-white/5 transition-colors"
+            className="w-full flex items-center justify-between px-3 py-3.5 border-b border-border hover:bg-white/5 transition-colors"
           >
-            {tocOpen && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Contents</span>}
-            <ChevronRight className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${tocOpen ? "rotate-180" : ""}`} />
+            {tocOpen && <span className="text-[11px] font-bold text-foreground/70 uppercase tracking-widest">Contents</span>}
+            <ChevronRight className={`w-3.5 h-3.5 text-foreground/50 transition-transform ${tocOpen ? "rotate-180" : ""}`} />
           </button>
           {tocOpen && (
-            <nav className="py-2">
+            <nav className="py-3">
               {TOC.map(({ num, label }) => (
                 <button
                   key={num}
                   onClick={() => scrollTo(num)}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-all hover:bg-white/5 group ${activeSection === num ? "bg-primary/10 border-r-2 border-primary" : ""}`}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-all hover:bg-white/8 group ${activeSection === num ? "bg-primary/15 border-r-2 border-primary" : ""}`}
                 >
-                  <span className={`text-[10px] font-black tabular-nums flex-shrink-0 ${activeSection === num ? "text-primary" : "text-muted-foreground/40"}`}>{num}</span>
-                  <span className={`text-[11px] leading-tight ${activeSection === num ? "text-foreground font-semibold" : "text-muted-foreground group-hover:text-foreground/80"}`}>{label}</span>
+                  <span className={`text-[11px] font-black tabular-nums flex-shrink-0 w-5 ${activeSection === num ? "text-primary" : "text-foreground/40"}`}>{num}</span>
+                  <span className={`text-[12px] leading-snug font-medium ${activeSection === num ? "text-foreground font-semibold" : "text-foreground/65 group-hover:text-foreground/90"}`}>{label}</span>
                 </button>
               ))}
             </nav>
@@ -214,7 +214,7 @@ export default function PRD() {
                 ].map((m) => (
                   <div key={m.label} className="bg-white/5 rounded-lg p-3 text-center border border-white/10">
                     <div className="text-2xl font-black text-primary">{m.value}</div>
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">{m.label}</div>
+                    <div className="text-[10px] text-foreground/65 uppercase tracking-wider mt-0.5">{m.label}</div>
                   </div>
                 ))}
               </div>
@@ -230,7 +230,7 @@ export default function PRD() {
                 description="The strategic case for LendAI — why commercial lending is broken, why agentic AI is the right solution now, and what measurable outcomes banks and NBFCs can expect." />
               <div className="space-y-6">
                 <InsightBox title="The Core Problem" color="red">
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-xs text-foreground/75 leading-relaxed">
                     Commercial lending is the most profitable product in banking — and the most operationally broken. A process that should take 3–5 days takes 21 days on average. A task that requires 2 hours of analysis consumes 8 hours of manual work. A portfolio that should be monitored daily is reviewed quarterly. The result: $47B in foregone SME revenue annually, $180B in preventable NPLs, and a generation of borrowers who have abandoned banks for faster alternatives.
                   </p>
                 </InsightBox>
@@ -243,10 +243,10 @@ export default function PRD() {
                 </div>
 
                 <InsightBox title="Product Hypothesis" color="blue">
-                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                  <p className="text-xs text-foreground/75 leading-relaxed mb-3">
                     <strong className="text-foreground">We believe</strong> that banks and NBFCs processing commercial loans will achieve measurably better time-to-decision, credit quality, and operating cost outcomes by deploying a modular agentic AI platform that automates document intelligence, financial spreading, credit memo drafting, compliance checks, and portfolio monitoring — while keeping humans accountable for all final credit decisions.
                   </p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-xs text-foreground/75 leading-relaxed">
                     <strong className="text-foreground">We will know this is true when:</strong> (1) Time-to-decision for SME loans falls from 21 days to ≤5 days within 6 months of deployment; (2) Underwriter throughput increases from 3–4 to ≥8 deals/week; (3) NPL rate improves by ≥15% vs. baseline within 18 months; (4) Borrower NPS improves from 32 to ≥50.
                   </p>
                 </InsightBox>
@@ -275,7 +275,7 @@ export default function PRD() {
                         {c.points.map((p) => (
                           <div key={p} className="flex items-start gap-2">
                             <c.icon className={`w-3 h-3 flex-shrink-0 mt-0.5 ${c.color}`} />
-                            <span className="text-[11px] text-muted-foreground leading-relaxed">{p}</span>
+                            <span className="text-[11px] text-foreground/75 leading-relaxed">{p}</span>
                           </div>
                         ))}
                       </div>
@@ -303,7 +303,7 @@ export default function PRD() {
                         <div className="flex-shrink-0 w-12 text-[10px] font-bold text-red-400 pt-0.5">{w.why}</div>
                         <div>
                           <div className="text-[11px] font-semibold text-foreground">{w.q}</div>
-                          <div className="text-[11px] text-muted-foreground leading-relaxed">{w.a}</div>
+                          <div className="text-[11px] text-foreground/75 leading-relaxed">{w.a}</div>
                         </div>
                       </div>
                     ))}
@@ -375,7 +375,7 @@ export default function PRD() {
                       ].map((p) => (
                         <div key={p} className="flex items-start gap-2">
                           <Shield className="w-3 h-3 text-purple-400 flex-shrink-0 mt-0.5" />
-                          <span className="text-[11px] text-muted-foreground leading-relaxed">{p}</span>
+                          <span className="text-[11px] text-foreground/75 leading-relaxed">{p}</span>
                         </div>
                       ))}
                     </div>
@@ -493,7 +493,7 @@ export default function PRD() {
                       <Tag color={s.badge}>{s.stage}</Tag>
                       <span className="text-sm font-bold text-foreground">{s.name}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed mb-3">{s.pain}</p>
+                    <p className="text-xs text-foreground/75 leading-relaxed mb-3">{s.pain}</p>
                     <div className="flex items-start gap-2 bg-white/3 rounded-lg p-2.5 mb-3">
                       <AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" />
                       <span className="text-[11px] text-amber-200/80 leading-relaxed italic">{s.stat}</span>
@@ -503,7 +503,7 @@ export default function PRD() {
                       {s.jtbd.map((j) => (
                         <div key={j.persona} className="flex items-start gap-2">
                           <Tag color="gray">{j.persona}</Tag>
-                          <span className="text-[11px] text-muted-foreground leading-relaxed flex-1">{j.job}</span>
+                          <span className="text-[11px] text-foreground/75 leading-relaxed flex-1">{j.job}</span>
                         </div>
                       ))}
                     </div>
@@ -536,21 +536,21 @@ export default function PRD() {
                   <InsightBox title="Technology Gap" color="blue">
                     <ul className="space-y-1.5 mt-1">
                       {["No LLM-based document understanding in current LOS", "No real-time financial data enrichment", "No agentic orchestration layer", "No learned underwriting model — static scorecards only", "No proactive EWS with intervention recommendations"].map(g => (
-                        <li key={g} className="flex items-start gap-2"><AlertTriangle className="w-3 h-3 text-blue-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>
+                        <li key={g} className="flex items-start gap-2"><AlertTriangle className="w-3 h-3 text-blue-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-foreground/75">{g}</span></li>
                       ))}
                     </ul>
                   </InsightBox>
                   <InsightBox title="Process Gap" color="amber">
                     <ul className="space-y-1.5 mt-1">
                       {["28+ handoffs in a standard SME loan — each a delay and error point", "No single source of truth for deal status", "Compliance checking happens at end, not continuously", "Workout strategies not systematized or learned from", "No feedback loop from outcomes to underwriting models"].map(g => (
-                        <li key={g} className="flex items-start gap-2"><AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>
+                        <li key={g} className="flex items-start gap-2"><AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-foreground/75">{g}</span></li>
                       ))}
                     </ul>
                   </InsightBox>
                   <InsightBox title="Data Gap" color="purple">
                     <ul className="space-y-1.5 mt-1">
                       {["Financial statements not digitized or structured", "No real-time GST/bank statement enrichment", "Covenant data not tracked in machine-readable format", "No historical outcome data linked to underwriting decisions", "No cross-portfolio risk correlation analysis"].map(g => (
-                        <li key={g} className="flex items-start gap-2"><AlertTriangle className="w-3 h-3 text-purple-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>
+                        <li key={g} className="flex items-start gap-2"><AlertTriangle className="w-3 h-3 text-purple-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-foreground/75">{g}</span></li>
                       ))}
                     </ul>
                   </InsightBox>
@@ -588,7 +588,7 @@ export default function PRD() {
                       ].map(r => (
                         <div key={r.theme} className="border border-border/50 rounded-lg p-2.5">
                           <div className="text-[11px] font-bold text-foreground mb-1">{r.theme}</div>
-                          <div className="text-[10px] text-muted-foreground leading-relaxed">{r.insight}</div>
+                          <div className="text-[10px] text-foreground/65 leading-relaxed">{r.insight}</div>
                         </div>
                       ))}
                     </div>
@@ -669,23 +669,23 @@ export default function PRD() {
                           <span className="text-base font-bold text-foreground">{p.name}</span>
                           <Tag color={p.badge}>{p.role}</Tag>
                         </div>
-                        <div className="text-[11px] text-muted-foreground">{p.bank}</div>
+                        <div className="text-[11px] text-foreground/75">{p.bank}</div>
                       </div>
-                      <div className="text-[10px] text-muted-foreground/60 text-right">Tech Comfort<br /><span className="text-foreground/70 font-medium">{p.techComfort}</span></div>
+                      <div className="text-[10px] text-foreground/65/60 text-right">Tech Comfort<br /><span className="text-foreground/70 font-medium">{p.techComfort}</span></div>
                     </div>
                     <blockquote className="text-[11px] italic text-muted-foreground/80 border-l-2 border-primary/40 pl-3 mb-4 leading-relaxed">{p.quote}</blockquote>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
                         <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Goals</div>
-                        <ul className="space-y-1">{p.goals.map(g => <li key={g} className="flex items-start gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>)}</ul>
+                        <ul className="space-y-1">{p.goals.map(g => <li key={g} className="flex items-start gap-1.5"><CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-foreground/75">{g}</span></li>)}</ul>
                       </div>
                       <div>
                         <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Pain Points</div>
-                        <ul className="space-y-1">{p.pains.map(g => <li key={g} className="flex items-start gap-1.5"><AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>)}</ul>
+                        <ul className="space-y-1">{p.pains.map(g => <li key={g} className="flex items-start gap-1.5"><AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-foreground/75">{g}</span></li>)}</ul>
                       </div>
                       <div>
                         <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Success KPIs</div>
-                        <ul className="space-y-1">{p.kpis.map(g => <li key={g} className="flex items-start gap-1.5"><Target className="w-3 h-3 text-blue-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>)}</ul>
+                        <ul className="space-y-1">{p.kpis.map(g => <li key={g} className="flex items-start gap-1.5"><Target className="w-3 h-3 text-blue-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-foreground/75">{g}</span></li>)}</ul>
                       </div>
                     </div>
                   </div>
@@ -767,20 +767,20 @@ export default function PRD() {
                         <Tag color={j.badge}>Journey</Tag>
                         <span className="text-sm font-bold text-foreground">{j.title}</span>
                       </div>
-                      <div className="text-[11px] text-muted-foreground">{j.subtitle}</div>
+                      <div className="text-[11px] text-foreground/75">{j.subtitle}</div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/50">
                       <div className="p-5">
                         <div className="flex items-center gap-3 mb-3">
                           <Tag color="red">Today</Tag>
                           <span className="text-xs font-bold text-foreground">{j.today.time}</span>
-                          <span className="text-[10px] text-muted-foreground">· {j.today.handoffs} handoffs · {j.today.cost}</span>
+                          <span className="text-[10px] text-foreground/65">· {j.today.handoffs} handoffs · {j.today.cost}</span>
                         </div>
                         <div className="space-y-1.5">
                           {j.today.steps.map(([t, s]) => (
                             <div key={t as string} className="flex items-start gap-2">
                               <span className="text-[10px] font-mono text-muted-foreground/60 flex-shrink-0 w-16 mt-0.5">{t as string}</span>
-                              <span className="text-[11px] text-muted-foreground leading-relaxed">{s as string}</span>
+                              <span className="text-[11px] text-foreground/75 leading-relaxed">{s as string}</span>
                             </div>
                           ))}
                         </div>
@@ -789,13 +789,13 @@ export default function PRD() {
                         <div className="flex items-center gap-3 mb-3">
                           <Tag color="green">Agentic</Tag>
                           <span className="text-xs font-bold text-foreground">{j.agentic.time}</span>
-                          <span className="text-[10px] text-muted-foreground">· {j.agentic.handoffs} handoffs · {j.agentic.cost}</span>
+                          <span className="text-[10px] text-foreground/65">· {j.agentic.handoffs} handoffs · {j.agentic.cost}</span>
                         </div>
                         <div className="space-y-1.5">
                           {j.agentic.steps.map(([t, s]) => (
                             <div key={t as string} className="flex items-start gap-2">
                               <span className="text-[10px] font-mono text-emerald-400/60 flex-shrink-0 w-16 mt-0.5">{t as string}</span>
-                              <span className="text-[11px] text-muted-foreground leading-relaxed">{s as string}</span>
+                              <span className="text-[11px] text-foreground/75 leading-relaxed">{s as string}</span>
                             </div>
                           ))}
                         </div>
@@ -849,7 +849,7 @@ export default function PRD() {
                     ].map(i => (
                       <div key={i.insight} className="border border-border/50 rounded-lg p-3">
                         <div className="text-[11px] font-bold text-foreground mb-1">{i.insight}</div>
-                        <div className="text-[10px] text-muted-foreground leading-relaxed">{i.detail}</div>
+                        <div className="text-[10px] text-foreground/65 leading-relaxed">{i.detail}</div>
                       </div>
                     ))}
                   </div>
@@ -888,7 +888,7 @@ export default function PRD() {
                     ].map(r => (
                       <div key={r.title} className="border border-border/50 rounded-lg p-3">
                         <div className="text-[11px] font-bold text-foreground mb-1">{r.title}</div>
-                        <div className="text-[10px] text-muted-foreground leading-relaxed">{r.body}</div>
+                        <div className="text-[10px] text-foreground/65 leading-relaxed">{r.body}</div>
                       </div>
                     ))}
                   </div>
@@ -921,7 +921,7 @@ export default function PRD() {
                         "Human override rate is tracked — if >20% of AI outputs are overridden, the agent is retrained before scaling",
                         "Regulator-accessible test log maintained for all A/B tests",
                         "No test involves fully automated credit decisions — human approval required throughout",
-                      ].map(g => <li key={g} className="flex items-start gap-2"><Shield className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{g}</span></li>)}
+                      ].map(g => <li key={g} className="flex items-start gap-2"><Shield className="w-3 h-3 text-amber-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-foreground/75">{g}</span></li>)}
                     </ul>
                   </InsightBox>
                   <InsightBox title="Success Criteria for Production Rollout" color="green">
@@ -1067,7 +1067,7 @@ export default function PRD() {
                       <Tag color={agent.badge}>Agent {agent.num}</Tag>
                       <span className="text-sm font-bold text-foreground">{agent.name}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed mb-4 border-l-2 border-primary/30 pl-3">{agent.goal}</p>
+                    <p className="text-xs text-foreground/75 leading-relaxed mb-4 border-l-2 border-primary/30 pl-3">{agent.goal}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {[
                         { label: "Inputs", items: agent.inputs, color: "text-blue-400" },
@@ -1083,7 +1083,7 @@ export default function PRD() {
                             {col.items.map(item => (
                               <li key={item} className="flex items-start gap-1.5">
                                 <div className={`w-1 h-1 rounded-full flex-shrink-0 mt-1.5 bg-current ${col.color}`} />
-                                <span className="text-[10px] text-muted-foreground leading-relaxed">{item}</span>
+                                <span className="text-[10px] text-foreground/65 leading-relaxed">{item}</span>
                               </li>
                             ))}
                           </ul>
@@ -1184,13 +1184,13 @@ export default function PRD() {
                       <div className="flex items-center gap-3 mb-3">
                         <Tag color={l.badge}>{l.layer}</Tag>
                         <span className="text-sm font-bold text-foreground">{l.name}</span>
-                        <span className="text-[10px] text-muted-foreground ml-auto font-mono">{l.tech}</span>
+                        <span className="text-[10px] text-foreground/65 ml-auto font-mono">{l.tech}</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {l.components.map(c => (
                           <div key={c} className="flex items-center gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
-                            <span className="text-[11px] text-muted-foreground">{c}</span>
+                            <span className="text-[11px] text-foreground/75">{c}</span>
                           </div>
                         ))}
                       </div>
@@ -1241,14 +1241,14 @@ export default function PRD() {
                             <Tag color={s.agent === "Human Gateway" ? "amber" : "gray"}>{s.agent}</Tag>
                             {s.parallel && <Tag color="cyan">Parallel</Tag>}
                           </div>
-                          <div className="text-[10px] text-muted-foreground mt-0.5">{s.output}</div>
+                          <div className="text-[10px] text-foreground/65 mt-0.5">{s.output}</div>
                         </div>
                       </div>
                     ))}
                   </div>
                 </InsightBox>
                 <InsightBox title="Data Masking Before LLM Calls" color="amber">
-                  <p className="text-[11px] text-muted-foreground leading-relaxed mt-1">Before any data is sent to external LLM APIs, the platform applies a data masking layer that replaces PII (borrower name, PAN, account numbers, addresses) with anonymized tokens. The LLM processes anonymized data; the platform re-maps tokens to real values before displaying results to users. This ensures LLM providers never receive identifiable customer data, satisfying RBI data privacy requirements and DPDP Act 2023 obligations.</p>
+                  <p className="text-[11px] text-foreground/75 leading-relaxed mt-1">Before any data is sent to external LLM APIs, the platform applies a data masking layer that replaces PII (borrower name, PAN, account numbers, addresses) with anonymized tokens. The LLM processes anonymized data; the platform re-maps tokens to real values before displaying results to users. This ensures LLM providers never receive identifiable customer data, satisfying RBI data privacy requirements and DPDP Act 2023 obligations.</p>
                 </InsightBox>
               </div>
             </section>
@@ -1284,7 +1284,7 @@ export default function PRD() {
                     ].map(r => (
                       <div key={r.title} className="border border-border/50 rounded-lg p-3">
                         <div className="text-[11px] font-bold text-foreground mb-1">{r.title}</div>
-                        <div className="text-[10px] text-muted-foreground leading-relaxed">{r.body}</div>
+                        <div className="text-[10px] text-foreground/65 leading-relaxed">{r.body}</div>
                       </div>
                     ))}
                   </div>
@@ -1413,26 +1413,26 @@ export default function PRD() {
                     <div className="flex items-center gap-3 mb-3">
                       <Tag color={p.badge}>{p.phase}</Tag>
                       <span className="text-sm font-bold text-foreground">{p.name}</span>
-                      <span className="text-[11px] text-muted-foreground ml-auto">{p.duration}</span>
+                      <span className="text-[11px] text-foreground/75 ml-auto">{p.duration}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed mb-4">{p.objective}</p>
+                    <p className="text-xs text-foreground/75 leading-relaxed mb-4">{p.objective}</p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div>
                         <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Agents Deployed</div>
-                        <ul className="space-y-1">{p.agents.map(a => <li key={a} className="flex items-center gap-1.5"><Cpu className="w-3 h-3 text-primary flex-shrink-0" /><span className="text-[11px] text-muted-foreground">{a}</span></li>)}</ul>
+                        <ul className="space-y-1">{p.agents.map(a => <li key={a} className="flex items-center gap-1.5"><Cpu className="w-3 h-3 text-primary flex-shrink-0" /><span className="text-[11px] text-foreground/75">{a}</span></li>)}</ul>
                       </div>
                       <div>
                         <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Key Milestones</div>
-                        <ul className="space-y-1">{p.milestones.map(m => <li key={m.month} className="flex items-start gap-1.5"><span className="text-[10px] font-mono text-muted-foreground/60 flex-shrink-0 w-8">{m.month}</span><span className="text-[11px] text-muted-foreground">{m.milestone}</span></li>)}</ul>
+                        <ul className="space-y-1">{p.milestones.map(m => <li key={m.month} className="flex items-start gap-1.5"><span className="text-[10px] font-mono text-muted-foreground/60 flex-shrink-0 w-8">{m.month}</span><span className="text-[11px] text-foreground/75">{m.milestone}</span></li>)}</ul>
                       </div>
                       <div>
                         <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Phase KPI Targets</div>
-                        <ul className="space-y-1">{p.kpis.map(k => <li key={k} className="flex items-start gap-1.5"><TrendingUp className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-muted-foreground">{k}</span></li>)}</ul>
+                        <ul className="space-y-1">{p.kpis.map(k => <li key={k} className="flex items-start gap-1.5"><TrendingUp className="w-3 h-3 text-emerald-400 flex-shrink-0 mt-0.5" /><span className="text-[11px] text-foreground/75">{k}</span></li>)}</ul>
                       </div>
                     </div>
                     <div className="bg-white/3 rounded-lg p-3 border border-border/50">
                       <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Go/No-Go Gate: </span>
-                      <span className="text-[11px] text-muted-foreground">{p.gate}</span>
+                      <span className="text-[11px] text-foreground/75">{p.gate}</span>
                     </div>
                   </div>
                 ))}
@@ -1478,7 +1478,7 @@ export default function PRD() {
                       "[9] TIMVERO. \"How AI and Automation Are Transforming Lending.\" TIMVERO Research, 2024.",
                       "[10] Primary Research. \"47 Practitioner Interviews Across 12 Indian Financial Institutions.\" Conducted 2024.",
                     ].map(c => (
-                      <div key={c} className="text-[10px] text-muted-foreground/70 leading-relaxed font-mono">{c}</div>
+                      <div key={c} className="text-[10px] text-foreground/65/70 leading-relaxed font-mono">{c}</div>
                     ))}
                   </div>
                 </div>
